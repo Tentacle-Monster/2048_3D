@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <math.h>
+#include <time.h>
+#include <stdlib.h>
 #define GL_GLEXT_PROTOTYPES
 #ifdef __APPLE__
 #include <GLUT/glut.h>
@@ -60,7 +62,7 @@ int turn_x( int rev){
 int step( int dir, int pos);
 void display();
 void specialKeys();
-
+void newcube();
 
 
 int step( int dir, int pos){
@@ -151,8 +153,24 @@ int turn(int dir){
       ret+=step(dir,i);
    }
    }
+
+
+   newcube();
    return(ret);
 }
+
+void newcube(){
+   int x,y,z;
+   do{
+      x = rand() % maxsize;
+      y = rand() % maxsize;
+      z = rand() % maxsize; 
+   }while(matrix[x][y][z]);
+   matrix[x][y][z]=1;
+
+}
+
+
 
 
 void drawcube( double dx, double dy, double dz, double size ){
@@ -296,10 +314,10 @@ void specialKeys( int key, int x, int y ) {
       case GLUT_KEY_F6:
          turn(4);
       break;
-      /*case GLUT_KEY_UP:
-         rotate_x += 2.5;
+      case GLUT_KEY_F7:
+         newcube();
       break;
-      case GLUT_KEY_DOWN:
+      /*case GLUT_KEY_DOWN:
          rotate_x -= 2.5;
       break;
       */
@@ -342,7 +360,7 @@ void specialKeys( int key, int x, int y ) {
 // main() function
 // ----------------------------------------------------------
 int main(int argc, char* argv[]){
-
+   srand(time(NULL)); 
 
     for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
