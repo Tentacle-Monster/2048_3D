@@ -134,10 +134,23 @@ int step( int dir, int pos){
 
 int turn(int dir){
    int ret =0;
+   int lastret=-1;
    if(dir%2)
-   for(int i=1; i<maxsize; i++)ret+=step(dir,i);
+   while (ret-lastret){
+   {
+       lastret=ret;
+      for(int i=1; i<maxsize; i++)
+      ret+=step(dir,i);
+   }
+   }
    else
-   for(int i=maxsize-2; i>=0; i--)ret+=step(dir,i);
+   while (ret-lastret){
+   {
+       lastret=ret;
+       for(int i=maxsize-2; i>=0; i--)
+      ret+=step(dir,i);
+   }
+   }
    return(ret);
 }
 
