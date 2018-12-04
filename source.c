@@ -155,7 +155,7 @@ int turn(int dir){
    }
 
 
-   newcube();
+   if(ret)newcube();
    return(ret);
 }
 
