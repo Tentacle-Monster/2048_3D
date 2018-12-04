@@ -21,9 +21,9 @@
 // ----------------------------------------------------------
 // Function Prototypes
 // ----------------------------------------------------------
-unsigned int matrix[maxsize][maxsize][maxsize] ;
+int matrix[maxsize][maxsize][maxsize] ;
 
-
+/*
 enum Direction{
    up,
    down,
@@ -31,7 +31,7 @@ enum Direction{
    left,
    to,
    from
-};
+};*/
 
 /*
 int turn( Direction ){
@@ -68,7 +68,7 @@ int step( int dir, int pos){
   int delta;
   if(dir%2) delta=-1;
   else delta=1;
-   switch(dir/3){
+   switch(dir/2){
       case 0:
       
       for(int y=0; y<maxsize; y++){
@@ -137,7 +137,7 @@ int turn(int dir){
    if(dir%2)
    for(int i=1; i<maxsize; i++)ret+=step(dir,i);
    else
-   for(int i=maxsize-1; i>=0; i--)ret+=step(dir,i);
+   for(int i=maxsize-2; i>=0; i--)ret+=step(dir,i);
    return(ret);
 }
 
@@ -269,19 +269,19 @@ void specialKeys( int key, int x, int y ) {
          turn(1);
       break;
       case GLUT_KEY_F2:
-         turn(2);
+         turn(0);
       break;
       case GLUT_KEY_F3:
          turn(3);
       break;
       case GLUT_KEY_F4:
-         turn(4);
+         turn(2);
       break;
       case GLUT_KEY_F5:
          turn(5);
       break;
       case GLUT_KEY_F6:
-         turn(6);
+         turn(4);
       break;
       /*case GLUT_KEY_UP:
          rotate_x += 2.5;
@@ -292,46 +292,6 @@ void specialKeys( int key, int x, int y ) {
       */
       
    }
-
-
-
-
-
-
-
-
-
-
-
-  //  Right arrow - increase rotation by 5 degree
-  if (key == GLUT_KEY_RIGHT)
-    rotate_y += 2.5;
- 
-  //e()//  Left arrow - decrease rotation by 5 degree
-  else if (key == GLUT_KEY_LEFT)
-    rotate_y -= 2.5;
- 
-  else if (key == GLUT_KEY_UP)
-    rotate_x += 2.5;
- 
-  else if (key == GLUT_KEY_DOWN)
-    rotate_x -= 2.5;
-
-   else if(key == GLUT_KEY_F1){
-      turn(1);
-   }
-   else if(key == GLUT_KEY_F2){
-    /*  matrix[0][0][0]++;
-      matrix[0][0][0]%=win;*/
-      turn(2);
-   }
-   else if(key == GLUT_KEY_F3){
-      turn(3);
-   }
-   else if(key == GLUT_KEY_F4){
-      turn(4);
-   }
-  //  Request display update
   glutPostRedisplay();
  
 }
@@ -374,7 +334,7 @@ int main(int argc, char* argv[]){
     for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
-            matrix[x][y][z] = 3;
+            matrix[x][y][z] = 1;
          }
       }
    }
