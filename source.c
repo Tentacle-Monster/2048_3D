@@ -1,11 +1,4 @@
-//
-// File:        mycube.c
-// Author:      Matt Daisley
-// Created:     4/25/2012
-// Project:     Source code for Make a Cube in OpenGL
-// Description: Creates an OpenGL window and draws a 3D cube
-//              That the user can rotate using the arrow keys
-// 
+
 // Controls:    Left Arrow  - Rotate Left
 //              Right Arrow - Rotate Right
 //              Up Arrow    - Rotate Up
@@ -61,8 +54,48 @@ int turn_x( int rev){
 
 
 
+
+
+
+int step( int dir, int pos);
 void display();
 void specialKeys();
+
+
+
+int step( int dir, int pos){
+  int ret = 0;
+  int delta;
+  if(dir%2) delta=-1;
+  else delta=1; 
+      for(int y=0; y<maxsize; y++){
+         for(int z=0; z<maxsize; z++){
+            if(matrix[pos][y][z]!=0){
+               if(matrix[pos+delta][y][z]==0){
+                  matrix[pos+delta][y][z]=matrix[pos][y][z];
+                  matrix[pos][y][z]=0;
+                  ret++;               }
+            else if(matrix[pos+delta][y][z]==matrix[pos][y][z]){
+               matrix[pos+delta][y][z]++;
+               matrix[pos][y][z]=0;
+               ret++;
+               }
+            }
+         }
+      }
+   return(ret);
+
+   
+}
+
+
+int turn(void){
+   int ret =0;
+   for(int x=1; x<maxsize; x++)ret+=step(1,x);
+   return(ret);
+}
+
+
 void drawcube( double dx, double dy, double dz, double size ){
    glBegin(GL_POLYGON);
  
@@ -188,6 +221,13 @@ void specialKeys( int key, int x, int y ) {
   else if (key == GLUT_KEY_DOWN)
     rotate_x -= 2.5;
 
+   else if(key == GLUT_KEY_F1){
+      turn();
+   }
+   else if(key == GLUT_KEY_F2){
+      matrix[0][0][0]++;
+      matrix[0][0][0]%=win;
+   }
   //  Request display update
   glutPostRedisplay();
  
@@ -231,7 +271,7 @@ int main(int argc, char* argv[]){
     for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
-            matrix[x][y][z] = 11;
+            matrix[x][y][z] = 3;
          }
       }
    }
