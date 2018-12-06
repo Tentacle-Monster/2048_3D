@@ -9,21 +9,112 @@
 // ----------------------------------------------------------
 #include <stdio.h>
 #include <stdarg.h>
+#include<stdlib.h>
+#include<string.h>
 #include <math.h>
 #include <time.h>
-#include <stdlib.h>
 #define GL_GLEXT_PROTOTYPES
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#else
 #include <GL/glut.h>
-#endif
+#include<X11/Xlib.h>
+#include<GL/gl.h>
+#include<GL/glx.h>
+#include<GL/glu.h>
 #define maxsize 4
-#define win 12
+#define winrate 12
+
+// ----------------------------------------------------------
+// Global Variables
+// ----------------------------------------------------------
+double rotate_y=0; 
+double rotate_x=0;
+int matrix[maxsize][maxsize][maxsize] ;
+Display                 *dpy;
+Window                  root;
+GLint                   att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
+XVisualInfo             *vi;
+XSetWindowAttributes    swa;
+Window                  win;
+GLXContext              glc;
+Pixmap                  pixmap;
+int                     pixmap_width = 128, pixmap_height = 128;
+GC                      gc;
+XImage                  *xim[11];
+GLuint                  texture_id;
+XFontStruct * font;
+
+
+
 // ----------------------------------------------------------
 // Function Prototypes
 // ----------------------------------------------------------
-int matrix[maxsize][maxsize][maxsize] ;
+
+static void set_font_size ( int f_size)
+{
+    const char * fontname = "-*-helvetica-*-r-*-*-40-*-*-*-*-*-*-*";
+    font = XLoadQueryFont (dpy, fontname);
+    
+    /* If the font could not be loaded, revert to the "fixed" font. */
+    if (! font) {
+        fprintf (stderr, "unable to load font %s: using fixed\n", fontname);
+        font = XLoadQueryFont (dpy, "fixed");
+    }
+    XSetFont (dpy, gc, font->fid);
+}
+
+
+
+void create_texture( int nomber){
+    set_font_size(40);
+
+
+ pixmap = XCreatePixmap(dpy, root, pixmap_width, pixmap_height, vi->depth);
+ 
+
+
+ XFillRectangle(dpy, pixmap, gc, 0, 0, pixmap_width, pixmap_height);
+
+ //XSetForeground(dpy, gc, 0x000000);
+ //XFillArc(dpy, pixmap, gc, 15, 25, 50, 50, 0, 360*64);
+  // Font font;
+  // font = XLoadFont(dpy, "6x9");
+  //  XSetFont(dpy, glc,  font);
+/*
+char* texture_text;
+ switch(nomber){
+    case 1:
+    break;
+ }
+*/
+ XSetForeground(dpy, gc, 0xffffff);
+ XDrawString(dpy, pixmap, gc, 4, pixmap_height-4, "2048", strlen("2048"));
+
+// XSetForeground(dpy, gc, 0xff0000);
+ //XFillRectangle(dpy, pixmap, gc, 75, 75, 45, 35);
+
+ XFlush(dpy);
+ xim[0] = XGetImage(dpy, pixmap, 0, 0, pixmap_width, pixmap_height, AllPlanes, ZPixmap);
+
+ if(xim == NULL) {
+        printf("\n\tximage could not be created.\n\n"); }
+
+ /*     CREATE TEXTURE FROM PIXMAP */
+
+
+
+    glEnable(GL_TEXTURE_2D);
+ glGenTextures(1, &texture_id);
+ glBindTexture(GL_TEXTURE_2D, texture_id);
+ glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+ glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+ glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+}
+
+
+
+
+
+
 
 /*
 enum Direction{
@@ -176,13 +267,19 @@ void newcube(){
 void drawcube( double dx, double dy, double dz, double size ){
    glBegin(GL_POLYGON);
  
-  glColor3f( 1.0, 0.0, 0.0 );     glVertex3f(  size + dx , -size + dy , -size + dz  );      // P1 is red
-  glColor3f( 0.0, 1.0, 0.0 );     glVertex3f(  size + dx ,  size + dy , -size + dz  );      // P2 is green
-  glColor3f( 0.0, 0.0, 1.0 );     glVertex3f( -size + dx ,  size + dy , -size + dz  );      // P3 is blue
-  glColor3f( 1.0, 0.0, 1.0 );     glVertex3f( -size + dx , -size + dy , -size + dz  );      // P4 is purple
+  //glColor3f( 1.0, 0.0, 0.0 );
+  glTexCoord2f(0.0, 0.0);     glVertex3f(  size + dx , -size + dy , -size + dz  );      // P1 is red
+  //glColor3f( 0.0, 1.0, 0.0 );
+  glTexCoord2f(1.0, 0.0);     glVertex3f(  size + dx ,  size + dy , -size + dz  );      // P2 is green
+  //glColor3f( 0.0, 0.0, 1.0 );
+  glTexCoord2f(1.0, 1.0);     glVertex3f( -size + dx ,  size + dy , -size + dz  );      // P3 is blue
+  //glColor3f( 1.0, 0.0, 1.0 );
+  glTexCoord2f(0.0, 1.0);     glVertex3f( -size + dx , -size + dy , -size + dz  );      // P4 is purple
  
   glEnd();
- 
+  
+  
+
   // White side - BACK
   glBegin(GL_POLYGON);
   glColor3f(   1.0,  1.0, 1.0 );
@@ -230,12 +327,8 @@ void drawcube( double dx, double dy, double dz, double size ){
  
 }
  
-// ----------------------------------------------------------
-// Global Variables
-// ----------------------------------------------------------
-double rotate_y=0; 
-double rotate_x=0;
- 
+
+
 // ----------------------------------------------------------
 // display() Callback function
 // ----------------------------------------------------------
@@ -263,7 +356,7 @@ void display(){
    for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
-            if(matrix[x][y][z]!=0 && matrix[x][y][z]<win ){
+            if(matrix[x][y][z]!=0 && matrix[x][y][z]<winrate ){
             drawcube(1.2/maxsize*x-0.45, 1.2/maxsize*y-0.45, 1.2/maxsize*z-0.45, 0.02+matrix[x][y][z]*0.004 );
             }
          }
@@ -365,21 +458,51 @@ int main(int argc, char* argv[]){
     for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
-            matrix[x][y][z] = 1;
+            matrix[x][y][z] = 0;
          }
       }
    }
 
 
-  matrix[2][1][0]=5;
-  matrix[0][0][0]=10;
-  matrix[3][3][3]=10;
-  matrix[3][0][0]=5;
-  matrix[2][0][0]=11;
-  matrix[1][1][1]=5;
-  matrix[2][2][2]=1;
-  matrix[2][1][2]=11;
-  matrix[0][0][0]=11;
+  matrix[2][1][0]=1;
+  matrix[0][0][0]=1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
   //  Initialize GLUT and process user parameters
   glutInit(&argc,argv);
  
@@ -387,14 +510,16 @@ int main(int argc, char* argv[]){
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
  
   // Create window
-  glutCreateWindow("Awesome Cube");
+  glutCreateWindow("2048 3D");
   glutReshapeWindow(700,700);
   //  Enable Z-buffer depth test
   glEnable(GL_DEPTH_TEST);
   // Callback functions
   glutDisplayFunc(display);
   glutSpecialFunc(specialKeys);
- 
+ //create_texture(1); 
+ //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, pixmap_height, pixmap_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)(&(xim[0]->data[0])));
+
   //  Pass control to GLUT for events
   glutMainLoop();
  
