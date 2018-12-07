@@ -256,13 +256,13 @@ void drawcube( double dx, double dy, double dz, int siz ){
    glBegin(GL_POLYGON);
   
   //glColor3f( 1.0, 0.0, 0.0 );
-  glTexCoord2f(0, 0);     glVertex3f(  size + dx , -size + dy , -size + dz  );      // P1 is red
+  glTexCoord2f(1, 0);     glVertex3f(  size + dx , -size + dy , -size + dz  );      // P1 is red
   //glColor3f( 0.0, 1.0, 0.0 );
-  glTexCoord2f(0, 1);     glVertex3f(  size + dx ,  size + dy , -size + dz  );      // P2 is green
+  glTexCoord2f(1, 1);     glVertex3f(  size + dx ,  size + dy , -size + dz  );      // P2 is green
   //glColor3f( 0.0, 0.0, 1.0 );
-  glTexCoord2f(1, 1);     glVertex3f( -size + dx ,  size + dy , -size + dz  );      // P3 is blue
+  glTexCoord2f(0, 1);     glVertex3f( -size + dx ,  size + dy , -size + dz  );      // P3 is blue
   //glColor3f( 1.0, 0.0, 1.0 );
-  glTexCoord2f(1, 0);     glVertex3f( -size + dx , -size + dy , -size + dz  );      // P4 is purple
+  glTexCoord2f(0, 0);     glVertex3f( -size + dx , -size + dy , -size + dz  );      // P4 is purple
  
   glEnd();
   
