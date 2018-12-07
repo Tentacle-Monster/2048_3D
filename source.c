@@ -28,87 +28,64 @@
 double rotate_y=0; 
 double rotate_x=0;
 int matrix[maxsize][maxsize][maxsize] ;
-Display                 *dpy;
-Window                  root;
-GLint                   att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
-XVisualInfo             *vi;
-XSetWindowAttributes    swa;
-Window                  win;
-GLXContext              glc;
-Pixmap                  pixmap;
-int                     pixmap_width = 128, pixmap_height = 128;
-GC                      gc;
-XImage                  *xim[11];
-GLuint                  texture_id;
-XFontStruct * font;
-
+GLuint *                  textures[11];
 
 
 // ----------------------------------------------------------
 // Function Prototypes
 // ----------------------------------------------------------
 
-static void set_font_size ( int f_size)
+
+GLuint LoadTexture( const char * filename )
 {
-    const char * fontname = "-*-helvetica-*-r-*-*-40-*-*-*-*-*-*-*";
-    font = XLoadQueryFont (dpy, fontname);
-    
-    /* If the font could not be loaded, revert to the "fixed" font. */
-    if (! font) {
-        fprintf (stderr, "unable to load font %s: using fixed\n", fontname);
-        font = XLoadQueryFont (dpy, "fixed");
-    }
-    XSetFont (dpy, gc, font->fid);
+
+  GLuint texture;
+
+  int width, height;
+
+  unsigned char * data;
+
+  FILE * file;
+
+  file = fopen( filename, "rb" );
+
+  if ( file == NULL ) return 0;
+  width = 640;
+  height = 640;
+  data = (unsigned char *)malloc( width * height * 3 );
+  //int size = fseek(file,);
+  fread( data, width * height * 3, 1, file );
+  fclose( file );
+
+ for(int i = 0; i < width * height ; ++i)
+{
+   int index = i*3;
+   unsigned char B,R;
+   B = data[index];
+   R = data[index+2];
+
+   data[index] = R;
+   data[index+2] = B;
+
+}
+
+
+glGenTextures( 1, &texture );
+glBindTexture( GL_TEXTURE_2D, texture );
+glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,GL_MODULATE );
+glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST );
+
+
+glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR );
+glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_REPEAT );
+glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_REPEAT );
+gluBuild2DMipmaps( GL_TEXTURE_2D, 3, width, height,GL_RGB, GL_UNSIGNED_BYTE, data );
+free( data );
+glBindTexture(GL_TEXTURE_2D, 0);
+return texture;
 }
 
 
-
-void create_texture( int nomber){
-    set_font_size(40);
-
-
- pixmap = XCreatePixmap(dpy, root, pixmap_width, pixmap_height, vi->depth);
- 
-
-
- XFillRectangle(dpy, pixmap, gc, 0, 0, pixmap_width, pixmap_height);
-
- //XSetForeground(dpy, gc, 0x000000);
- //XFillArc(dpy, pixmap, gc, 15, 25, 50, 50, 0, 360*64);
-  // Font font;
-  // font = XLoadFont(dpy, "6x9");
-  //  XSetFont(dpy, glc,  font);
-/*
-char* texture_text;
- switch(nomber){
-    case 1:
-    break;
- }
-*/
- XSetForeground(dpy, gc, 0xffffff);
- XDrawString(dpy, pixmap, gc, 4, pixmap_height-4, "2048", strlen("2048"));
-
-// XSetForeground(dpy, gc, 0xff0000);
- //XFillRectangle(dpy, pixmap, gc, 75, 75, 45, 35);
-
- XFlush(dpy);
- xim[0] = XGetImage(dpy, pixmap, 0, 0, pixmap_width, pixmap_height, AllPlanes, ZPixmap);
-
- if(xim == NULL) {
-        printf("\n\tximage could not be created.\n\n"); }
-
- /*     CREATE TEXTURE FROM PIXMAP */
-
-
-
-    glEnable(GL_TEXTURE_2D);
- glGenTextures(1, &texture_id);
- glBindTexture(GL_TEXTURE_2D, texture_id);
- glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
- glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
- glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-}
 
 
 
@@ -264,67 +241,84 @@ void newcube(){
 
 
 
-void drawcube( double dx, double dy, double dz, double size ){
+void drawcube( double dx, double dy, double dz, int siz ){
+     //glClear(GL_COLOR_BUFFER_BIT);
+    //glMatrixMode(GL_PROJECTION);
+   // glOrtho(0, 800, 0, 600, -1, 1);
+  //  glMatrixMode(GL_MODELVIEW);
+   double size = 0.02+siz*0.004 ;
+   glBindTexture(GL_TEXTURE_2D, textures[siz-1]);
+
+
+   
+   glEnable(GL_TEXTURE_2D);
+    glColor3f(1.0, 1.0, 1.0);
    glBegin(GL_POLYGON);
- 
+  
   //glColor3f( 1.0, 0.0, 0.0 );
-  glTexCoord2f(0.0, 0.0);     glVertex3f(  size + dx , -size + dy , -size + dz  );      // P1 is red
+  glTexCoord2f(0, 0);     glVertex3f(  size + dx , -size + dy , -size + dz  );      // P1 is red
   //glColor3f( 0.0, 1.0, 0.0 );
-  glTexCoord2f(1.0, 0.0);     glVertex3f(  size + dx ,  size + dy , -size + dz  );      // P2 is green
+  glTexCoord2f(0, 1);     glVertex3f(  size + dx ,  size + dy , -size + dz  );      // P2 is green
   //glColor3f( 0.0, 0.0, 1.0 );
-  glTexCoord2f(1.0, 1.0);     glVertex3f( -size + dx ,  size + dy , -size + dz  );      // P3 is blue
+  glTexCoord2f(1, 1);     glVertex3f( -size + dx ,  size + dy , -size + dz  );      // P3 is blue
   //glColor3f( 1.0, 0.0, 1.0 );
-  glTexCoord2f(0.0, 1.0);     glVertex3f( -size + dx , -size + dy , -size + dz  );      // P4 is purple
+  glTexCoord2f(1, 0);     glVertex3f( -size + dx , -size + dy , -size + dz  );      // P4 is purple
  
   glEnd();
   
-  
+   
 
   // White side - BACK
   glBegin(GL_POLYGON);
-  glColor3f(   1.0,  1.0, 1.0 );
-  glVertex3f(  size + dx , -size + dy , size + dz  );
-  glVertex3f(  size + dx ,  size + dy , size + dz  );
-  glVertex3f( -size + dx ,  size + dy , size + dz  );
-  glVertex3f( -size + dx , -size + dy , size + dz  );
+  //glColor3f(   1.0,  1.0, 1.0 );
+  glTexCoord2f(0, 0);   glVertex3f(  size + dx , -size + dy , size + dz  );
+  glTexCoord2f(0, 1);   glVertex3f(  size + dx ,  size + dy , size + dz  );
+  glTexCoord2f(1, 1);   glVertex3f( -size + dx ,  size + dy , size + dz  );
+  glTexCoord2f(1, 0);   glVertex3f( -size + dx , -size + dy , size + dz  );
   glEnd();
  
   // Purple side - RIGHT
   glBegin(GL_POLYGON);
-  glColor3f(  1.0,  0.0,  1.0 );
-  glVertex3f( size + dx , -size + dy , -size + dz  );
-  glVertex3f( size + dx ,  size + dy , -size + dz  );
-  glVertex3f( size + dx ,  size + dy ,  size + dz  );
-  glVertex3f( size + dx , -size + dy ,  size + dz  );
+  //glColor3f(  1.0,  0.0,  1.0 );
+  glTexCoord2f(0, 0);   glVertex3f( size + dx , -size + dy , -size + dz  );
+  glTexCoord2f(0, 1);   glVertex3f( size + dx ,  size + dy , -size + dz  );
+  glTexCoord2f(1, 1);   glVertex3f( size + dx ,  size + dy ,  size + dz  );
+  glTexCoord2f(1, 0);   glVertex3f( size + dx , -size + dy ,  size + dz  );
   glEnd();
  
   // Green side - LEFT
   glBegin(GL_POLYGON);
-  glColor3f(   0.0,  1.0,  0.0 );
-  glVertex3f( -size + dx , -size + dy ,  size + dz  );
-  glVertex3f( -size + dx ,  size + dy ,  size + dz  );
-  glVertex3f( -size + dx ,  size + dy , -size + dz  );
-  glVertex3f( -size + dx , -size + dy , -size + dz  );
+  //glColor3f(   0.0,  1.0,  0.0 );
+  glTexCoord2f(0, 0);   glVertex3f( -size + dx , -size + dy ,  size + dz  );
+  glTexCoord2f(0, 1);   glVertex3f( -size + dx ,  size + dy ,  size + dz  );
+  glTexCoord2f(1, 1);   glVertex3f( -size + dx ,  size + dy , -size + dz  );
+  glTexCoord2f(1, 0);   glVertex3f( -size + dx , -size + dy , -size + dz  );
   glEnd();
  
   // Blue side - TOP
   glBegin(GL_POLYGON);
-  glColor3f(   0.0,  0.0,  1.0 );
-  glVertex3f(  size + dx ,  size + dy ,  size + dz  );
-  glVertex3f(  size + dx ,  size + dy , -size + dz  );
-  glVertex3f( -size + dx ,  size + dy , -size + dz  );
-  glVertex3f( -size + dx ,  size + dy ,  size + dz  );
+  //glColor3f(   0.0,  0.0,  1.0 );
+  glTexCoord2f(0, 0);   glVertex3f(  size + dx ,  size + dy ,  size + dz  );
+  glTexCoord2f(0, 1);   glVertex3f(  size + dx ,  size + dy , -size + dz  );
+  glTexCoord2f(1, 1);   glVertex3f( -size + dx ,  size + dy , -size + dz  );
+  glTexCoord2f(1, 0);   glVertex3f( -size + dx ,  size + dy ,  size + dz  );
   glEnd();
  
   // Red side - BOTTOM
   glBegin(GL_POLYGON);
-  glColor3f(   1.0,  0.0,  0.0 );
-  glVertex3f(  size + dx , -size + dy , -size + dz  );
-  glVertex3f(  size + dx , -size + dy ,  size + dz  );
-  glVertex3f( -size + dx , -size + dy ,  size + dz  );
-  glVertex3f( -size + dx , -size + dy , -size + dz  );
+  //glColor3f(   1.0,  0.0,  0.0 );
+  glTexCoord2f(0, 0);   glVertex3f(  size + dx , -size + dy , -size + dz  );
+  glTexCoord2f(0, 1);   glVertex3f(  size + dx , -size + dy ,  size + dz  );
+  glTexCoord2f(1, 1);   glVertex3f( -size + dx , -size + dy ,  size + dz  );
+  glTexCoord2f(1, 0);   glVertex3f( -size + dx , -size + dy , -size + dz  );
   glEnd();
  
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+
+   
+   glDisable(GL_TEXTURE_2D);
+
 }
  
 
@@ -357,7 +351,7 @@ void display(){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
             if(matrix[x][y][z]!=0 && matrix[x][y][z]<winrate ){
-            drawcube(1.2/maxsize*x-0.45, 1.2/maxsize*y-0.45, 1.2/maxsize*z-0.45, 0.02+matrix[x][y][z]*0.004 );
+            drawcube(1.2/maxsize*x-0.45, 1.2/maxsize*y-0.45, 1.2/maxsize*z-0.45, matrix[x][y][z]);
             }
          }
       }
@@ -464,7 +458,10 @@ int main(int argc, char* argv[]){
    }
 
 
-  matrix[2][1][0]=1;
+  matrix[2][1][0]=11;
+  matrix[2][1][1]=7;
+  matrix[2][1][2]=5;
+  matrix[2][1][3]=9;
   matrix[0][0][0]=1;
 
 
@@ -506,15 +503,36 @@ int main(int argc, char* argv[]){
   //  Initialize GLUT and process user parameters
   glutInit(&argc,argv);
  
+   
   //  Request double buffered true color window with Z-buffer
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
- 
+  glMatrixMode(GL_MODELVIEW);
   // Create window
+
   glutCreateWindow("2048 3D");
   glutReshapeWindow(700,700);
   //  Enable Z-buffer depth test
   glEnable(GL_DEPTH_TEST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
   // Callback functions
+   // if(texture[0]= LoadTexture( "textures/1.bmp" ))
+    textures[0] = LoadTexture( "textures/1.bmp" );
+    textures[1] = LoadTexture( "textures/2.bmp" );
+    textures[2] = LoadTexture( "textures/3.bmp" );
+    textures[3] = LoadTexture( "textures/4.bmp" );
+    textures[4] = LoadTexture( "textures/5.bmp" );
+    textures[5] = LoadTexture( "textures/6.bmp" );
+    textures[6] = LoadTexture( "textures/7.bmp" );
+    textures[7] = LoadTexture( "textures/8.bmp" );
+    textures[8] = LoadTexture( "textures/9.bmp" );
+    textures[9] = LoadTexture( "textures/10.bmp" );
+    textures[10] = LoadTexture( "textures/11.bmp" );
+        
+    
+    glBindTexture (GL_TEXTURE_2D, 0);
+   // else return 0;
   glutDisplayFunc(display);
   glutSpecialFunc(specialKeys);
  //create_texture(1); 
