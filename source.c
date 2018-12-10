@@ -13,15 +13,13 @@
 #include<string.h>
 #include <math.h>
 #include <time.h>
-#define GL_GLEXT_PROTOTYPES
 #include <GL/glut.h>
-#include<X11/Xlib.h>
 #include<GL/gl.h>
 #include<GL/glx.h>
 #include<GL/glu.h>
 #define maxsize 4
 #define winrate 12
-
+#define ss 0.6f;
 // ----------------------------------------------------------
 // Global Variables
 // ----------------------------------------------------------
@@ -34,6 +32,24 @@ GLuint *                  textures[11];
 // ----------------------------------------------------------
 // Function Prototypes
 // ----------------------------------------------------------
+
+
+int step();
+void display();
+void specialKeys();
+void newcube();
+GLuint LoadTexture();
+int step();
+int turn();
+void drawcube();
+void drawmatrix();
+
+
+
+
+
+
+
 
 
 GLuint LoadTexture( const char * filename )
@@ -87,52 +103,6 @@ return texture;
 
 
 
-
-
-
-
-
-
-/*
-enum Direction{
-   up,
-   down,
-   right,
-   left,
-   to,
-   from
-};*/
-
-/*
-int turn( Direction ){
-   if( Direction == 0);
-}
-
-
-int turn_x( int rev){
-   int ret = 0;
-   for(int x=1 ;x<maxsize ; x++){
-      for(int y=0; y<maxsize; y++){
-         for(int z=0; z<maxsize; z++){
-            if( matrix[x-1][y][z] ==  )
-         }
-      }
-   }
-}
-*/
-
-
-
-
-
-
-
-int step( int dir, int pos);
-void display();
-void specialKeys();
-void newcube();
-
-
 int step( int dir, int pos){
   int ret = 0;
   int delta;
@@ -148,8 +118,9 @@ int step( int dir, int pos){
                   matrix[pos+delta][y][z]=matrix[pos][y][z];
                   matrix[pos][y][z]=0;
                   ret++;               }
-            else if(matrix[pos+delta][y][z]==matrix[pos][y][z]){
+            else if(matrix[pos+delta][y][z]==matrix[pos][y][z]&&matrix[pos][y][z]>0){
                matrix[pos+delta][y][z]++;
+               matrix[pos+delta][y][z]*=-1;
                matrix[pos][y][z]=0;
                ret++;
                }
@@ -166,8 +137,9 @@ int step( int dir, int pos){
                   matrix[x][pos+delta][z]=matrix[x][pos][z];
                   matrix[x][pos][z]=0;
                   ret++;               }
-            else if(matrix[x][pos+delta][z]==matrix[x][pos][z]){
+            else if(matrix[x][pos+delta][z]==matrix[x][pos][z]&&matrix[x][pos][z]>0){
                matrix[x][pos+delta][z]++;
+               matrix[x][pos+delta][z]*=-1;
                matrix[x][pos][z]=0;
                ret++;
                }
@@ -184,8 +156,9 @@ int step( int dir, int pos){
                   matrix[x][y][pos+delta]=matrix[x][y][pos];
                   matrix[x][y][pos]=0;
                   ret++;               }
-            else if(matrix[x][y][pos+delta]==matrix[x][y][pos]){
+            else if(matrix[x][y][pos+delta]==matrix[x][y][pos]&&matrix[x][y][pos]>0){
                matrix[x][y][pos+delta]++;
+               matrix[x][y][pos+delta]*=-1;
                matrix[x][y][pos]=0;
                ret++;
                }
@@ -220,8 +193,15 @@ int turn(int dir){
        for(int i=maxsize-2; i>=0; i--)
       ret+=step(dir,i);
    }
+   
    }
-
+   for(int x=0 ;x<maxsize ; x++){
+      for(int y=0; y<maxsize; y++){
+         for(int z=0; z<maxsize; z++){
+            matrix[x][y][z]=abs(matrix[x][y][z]);
+         }
+      }
+   }
 
    if(ret)newcube();
    return(ret);
@@ -238,87 +218,84 @@ void newcube(){
 
 }
 
-
+void drawmatrix(){
+  // glColor3f(0,1,1);
+    glColor3f(0,0,1);
+   for(int x=0 ;x<=maxsize ; x++){
+      for(int y=0; y<=maxsize; y++){
+          
+	glBegin(GL_LINES); 
+		glVertex3f ((-0.5+(float)x/maxsize)*1.2,(-0.5+(float)y/maxsize)*1.2 ,-0.6); 
+		glVertex3f ((-0.5+(float)x/maxsize)*1.2,(-0.5+(float)y/maxsize)*1.2,0.6);  
+	glEnd();
+      }
+   }
+       glColor3f(0,1,0);
+   for(int x=0 ;x<=maxsize ; x++){
+      for(int z=0; z<=maxsize; z++){
+          
+	glBegin(GL_LINES); 
+		glVertex3f ((-0.5+(float)x/maxsize)*1.2 ,-0.6,(-0.5+(float)z/maxsize)*1.2); 
+		glVertex3f ((-0.5+(float)x/maxsize)*1.2 ,0.6 ,(-0.5+(float)z/maxsize)*1.2); 
+	glEnd();
+      }
+   }
+       glColor3f(1,0,0);
+   for(int z=0 ;z<=maxsize ; z++){
+      for(int y=0; y<=maxsize; y++){
+          
+	glBegin(GL_LINES); 
+		glVertex3f (-0.6,(-0.5+(float)y/maxsize)*1.2 ,(-0.5+(float)z/maxsize)*1.2); 
+		glVertex3f (0.6,(-0.5+(float)y/maxsize)*1.2,(-0.5+(float)z/maxsize)*1.2); 
+	glEnd();
+      }
+   }
+}
 
 
 void drawcube( double dx, double dy, double dz, int siz ){
-     //glClear(GL_COLOR_BUFFER_BIT);
-    //glMatrixMode(GL_PROJECTION);
-   // glOrtho(0, 800, 0, 600, -1, 1);
-  //  glMatrixMode(GL_MODELVIEW);
-   double size = 0.02+siz*0.004 ;
+   double size = 0.06+siz*0.005 ;
    glBindTexture(GL_TEXTURE_2D, textures[siz-1]);
-
-
-   
    glEnable(GL_TEXTURE_2D);
     glColor3f(1.0, 1.0, 1.0);
    glBegin(GL_POLYGON);
-  
-  //glColor3f( 1.0, 0.0, 0.0 );
-  glTexCoord2f(1, 0);     glVertex3f(  size + dx , -size + dy , -size + dz  );      // P1 is red
-  //glColor3f( 0.0, 1.0, 0.0 );
-  glTexCoord2f(1, 1);     glVertex3f(  size + dx ,  size + dy , -size + dz  );      // P2 is green
-  //glColor3f( 0.0, 0.0, 1.0 );
-  glTexCoord2f(0, 1);     glVertex3f( -size + dx ,  size + dy , -size + dz  );      // P3 is blue
-  //glColor3f( 1.0, 0.0, 1.0 );
-  glTexCoord2f(0, 0);     glVertex3f( -size + dx , -size + dy , -size + dz  );      // P4 is purple
- 
+  glTexCoord2f(1, 0);     glVertex3f(  size + dx , -size + dy , -size + dz  );
+  glTexCoord2f(1, 1);     glVertex3f(  size + dx ,  size + dy , -size + dz  );
+  glTexCoord2f(0, 1);     glVertex3f( -size + dx ,  size + dy , -size + dz  );
+  glTexCoord2f(0, 0);     glVertex3f( -size + dx , -size + dy , -size + dz  );
   glEnd();
-  
-   
-
-  // White side - BACK
   glBegin(GL_POLYGON);
-  //glColor3f(   1.0,  1.0, 1.0 );
   glTexCoord2f(0, 0);   glVertex3f(  size + dx , -size + dy , size + dz  );
   glTexCoord2f(0, 1);   glVertex3f(  size + dx ,  size + dy , size + dz  );
   glTexCoord2f(1, 1);   glVertex3f( -size + dx ,  size + dy , size + dz  );
   glTexCoord2f(1, 0);   glVertex3f( -size + dx , -size + dy , size + dz  );
   glEnd();
- 
-  // Purple side - RIGHT
   glBegin(GL_POLYGON);
-  //glColor3f(  1.0,  0.0,  1.0 );
   glTexCoord2f(0, 0);   glVertex3f( size + dx , -size + dy , -size + dz  );
   glTexCoord2f(0, 1);   glVertex3f( size + dx ,  size + dy , -size + dz  );
   glTexCoord2f(1, 1);   glVertex3f( size + dx ,  size + dy ,  size + dz  );
   glTexCoord2f(1, 0);   glVertex3f( size + dx , -size + dy ,  size + dz  );
   glEnd();
- 
-  // Green side - LEFT
   glBegin(GL_POLYGON);
-  //glColor3f(   0.0,  1.0,  0.0 );
   glTexCoord2f(0, 0);   glVertex3f( -size + dx , -size + dy ,  size + dz  );
   glTexCoord2f(0, 1);   glVertex3f( -size + dx ,  size + dy ,  size + dz  );
   glTexCoord2f(1, 1);   glVertex3f( -size + dx ,  size + dy , -size + dz  );
   glTexCoord2f(1, 0);   glVertex3f( -size + dx , -size + dy , -size + dz  );
   glEnd();
- 
-  // Blue side - TOP
   glBegin(GL_POLYGON);
-  //glColor3f(   0.0,  0.0,  1.0 );
   glTexCoord2f(0, 0);   glVertex3f(  size + dx ,  size + dy ,  size + dz  );
   glTexCoord2f(0, 1);   glVertex3f(  size + dx ,  size + dy , -size + dz  );
   glTexCoord2f(1, 1);   glVertex3f( -size + dx ,  size + dy , -size + dz  );
   glTexCoord2f(1, 0);   glVertex3f( -size + dx ,  size + dy ,  size + dz  );
   glEnd();
- 
-  // Red side - BOTTOM
   glBegin(GL_POLYGON);
-  //glColor3f(   1.0,  0.0,  0.0 );
   glTexCoord2f(0, 0);   glVertex3f(  size + dx , -size + dy , -size + dz  );
   glTexCoord2f(0, 1);   glVertex3f(  size + dx , -size + dy ,  size + dz  );
   glTexCoord2f(1, 1);   glVertex3f( -size + dx , -size + dy ,  size + dz  );
   glTexCoord2f(1, 0);   glVertex3f( -size + dx , -size + dy , -size + dz  );
   glEnd();
- 
   glBindTexture(GL_TEXTURE_2D, 0);
-
-
-   
-   glDisable(GL_TEXTURE_2D);
-
+  glDisable(GL_TEXTURE_2D);
 }
  
 
@@ -330,23 +307,12 @@ void display(){
  
   //  Clear screen and Z-buffer
   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
- 
+   
   // Reset transformations
   glLoadIdentity();
- 
-  // Other Transformations
-  // glTranslatef( 0.1, 0.0, 0.0 );      // Not included
-  // glRotatef( 180, 0.0, 1.0, 0.0 );    // Not included
- 
-  // Rotate when user changes rotate_x and rotate_y
+ // Rotate when user changes rotate_x and rotate_y
   glRotatef( rotate_x, 1.0, 0.0, 0.0 );
   glRotatef( rotate_y, 0.0, 1.0, 0.0 );
- 
-  // Other Transformations
-  // glScalef( 2.0, 2.0, 0.0 );          // Not included
- //  drawcube(0.2,0.2,0.2, 0.5);
- //   drawcube(-0.2,-0.2,-0.2, 0.4);
-
    for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
@@ -356,12 +322,8 @@ void display(){
          }
       }
    }
-
-
-
-  //Multi-colored side - FRONT
-  
-  glFlush();
+   drawmatrix();
+ glFlush();
   glutSwapBuffers();
  
 }
@@ -404,42 +366,10 @@ void specialKeys( int key, int x, int y ) {
       case GLUT_KEY_F7:
          newcube();
       break;
-      /*case GLUT_KEY_DOWN:
-         rotate_x -= 2.5;
-      break;
-      */
-      
    }
   glutPostRedisplay();
  
 }
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -459,47 +389,8 @@ int main(int argc, char* argv[]){
 
 
   matrix[2][1][0]=11;
-  matrix[2][1][1]=7;
-  matrix[2][1][2]=5;
-  matrix[2][1][3]=9;
   matrix[0][0][0]=1;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
   //  Initialize GLUT and process user parameters
   glutInit(&argc,argv);
  
@@ -516,8 +407,6 @@ int main(int argc, char* argv[]){
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  // Callback functions
-   // if(texture[0]= LoadTexture( "textures/1.bmp" ))
     textures[0] = LoadTexture( "textures/1.bmp" );
     textures[1] = LoadTexture( "textures/2.bmp" );
     textures[2] = LoadTexture( "textures/3.bmp" );
@@ -532,12 +421,8 @@ int main(int argc, char* argv[]){
         
     
     glBindTexture (GL_TEXTURE_2D, 0);
-   // else return 0;
   glutDisplayFunc(display);
   glutSpecialFunc(specialKeys);
- //create_texture(1); 
- //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, pixmap_height, pixmap_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)(&(xim[0]->data[0])));
-
   //  Pass control to GLUT for events
   glutMainLoop();
  
