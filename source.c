@@ -43,8 +43,8 @@ int step();
 int turn();
 void drawcube();
 void drawmatrix();
-
-
+void win();
+void g_ower_screen();
 
 
 
@@ -199,6 +199,9 @@ int turn(int dir){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
             matrix[x][y][z]=abs(matrix[x][y][z]);
+            /*if(matrix[x][y][z]>=winrate){
+               win();
+            }*/
          }
       }
    }
@@ -206,6 +209,9 @@ int turn(int dir){
    if(ret)newcube();
    return(ret);
 }
+
+
+
 
 void newcube(){
    int x,y,z;
@@ -323,9 +329,37 @@ void display(){
       }
    }
    drawmatrix();
+  // g_ower_screen();
  glFlush();
   glutSwapBuffers();
  
+}
+void g_ower_screen(){
+   glLoadIdentity();
+   GLuint gameower;
+    glColor3f(1,1,1);
+   gameower =  LoadTexture( "textures/uwin.bmp" );
+   glBindTexture (GL_TEXTURE_2D, 0);
+   glBindTexture(GL_TEXTURE_2D, gameower);
+   glEnable(GL_TEXTURE_2D);
+   glBegin(GL_POLYGON);
+  glTexCoord2f(1, 0);     glVertex2f( 1 , -1  );
+  glTexCoord2f(1, 1);     glVertex2f( 1 , 1  );
+  glTexCoord2f(0, 1);     glVertex2f( -1 , 1  );
+  glTexCoord2f(0, 0);     glVertex2f( -1 , -1  );
+   glDisable(GL_POLYGON);
+  glEnd();
+  glutPostRedisplay();
+
+
+}
+
+void win(){
+  // glutInit();
+   glutDisplayFunc(g_ower_screen);
+    glutSpecialFunc(0);
+  glutMainLoop();
+
 }
  
 // ----------------------------------------------------------
@@ -368,7 +402,6 @@ void specialKeys( int key, int x, int y ) {
       break;
    }
   glutPostRedisplay();
- 
 }
 
 
@@ -377,7 +410,7 @@ void specialKeys( int key, int x, int y ) {
 // main() function
 // ----------------------------------------------------------
 int main(int argc, char* argv[]){
-   srand(time(NULL)); 
+   //srand(time(NULL)); 
 
     for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
@@ -389,6 +422,8 @@ int main(int argc, char* argv[]){
 
 
   matrix[2][1][0]=11;
+  matrix[1][1][0]=11;
+  matrix[2][2][1]=11;
   matrix[0][0][0]=1;
 
   //  Initialize GLUT and process user parameters
