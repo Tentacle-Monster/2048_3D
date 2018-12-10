@@ -27,7 +27,7 @@ double rotate_y=0;
 double rotate_x=0;
 int matrix[maxsize][maxsize][maxsize] ;
 GLuint *                  textures[11];
-
+int gamemode =1;
 
 // ----------------------------------------------------------
 // Function Prototypes
@@ -43,9 +43,10 @@ int step();
 int turn();
 void drawcube();
 void drawmatrix();
-void win();
+//void win();
 void g_ower_screen();
-
+void maindraw();
+void newgame();
 
 
 
@@ -195,22 +196,36 @@ int turn(int dir){
    }
    
    }
+   int space =0 ;
    for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
             matrix[x][y][z]=abs(matrix[x][y][z]);
-            /*if(matrix[x][y][z]>=winrate){
-               win();
-            }*/
+            if(matrix[x][y][z]>=winrate){
+               gamemode = 2;
+            }
+            else if(!matrix[x][y][z]) space++;
          }
       }
    }
-
+   if (!space) gamemode = 3;
+   else
    if(ret)newcube();
    return(ret);
 }
 
-
+void newgame(){
+   gamemode = 1;
+   for(int x=0 ;x<maxsize ; x++){
+      for(int y=0; y<maxsize; y++){
+         for(int z=0; z<maxsize; z++){
+            matrix[x][y][z]=0;
+         }
+      }
+   }
+   newcube();
+   newcube();
+}
 
 
 void newcube(){
@@ -304,7 +319,21 @@ void drawcube( double dx, double dy, double dz, int siz ){
   glDisable(GL_TEXTURE_2D);
 }
  
-
+void maindraw(){
+   glRotatef( rotate_x, 1.0, 0.0, 0.0 );
+  glRotatef( rotate_y, 0.0, 1.0, 0.0 );
+   for(int x=0 ;x<maxsize ; x++){
+      for(int y=0; y<maxsize; y++){
+         for(int z=0; z<maxsize; z++){
+            if(matrix[x][y][z]!=0 && matrix[x][y][z]<winrate ){
+            drawcube(1.2/maxsize*x-0.45, 1.2/maxsize*y-0.45, 1.2/maxsize*z-0.45, matrix[x][y][z]);
+            }
+         }
+      }
+   }
+   drawmatrix();
+  
+}
 
 // ----------------------------------------------------------
 // display() Callback function
@@ -317,28 +346,28 @@ void display(){
   // Reset transformations
   glLoadIdentity();
  // Rotate when user changes rotate_x and rotate_y
-  glRotatef( rotate_x, 1.0, 0.0, 0.0 );
-  glRotatef( rotate_y, 0.0, 1.0, 0.0 );
-   for(int x=0 ;x<maxsize ; x++){
-      for(int y=0; y<maxsize; y++){
-         for(int z=0; z<maxsize; z++){
-            if(matrix[x][y][z]!=0 && matrix[x][y][z]<winrate ){
-            drawcube(1.2/maxsize*x-0.45, 1.2/maxsize*y-0.45, 1.2/maxsize*z-0.45, matrix[x][y][z]);
-            }
-         }
-      }
-   }
-   drawmatrix();
+ switch(gamemode){
+    case 1:
+      maindraw();
+    break;
+    case 2:
+      g_ower_screen("textures/uwin.bmp");
+    break;
+    case 3:
+      g_ower_screen("textures/ulos.bmp");
+    break;
+ }
+   
   // g_ower_screen();
  glFlush();
   glutSwapBuffers();
  
 }
-void g_ower_screen(){
+void g_ower_screen( char path[]){
    glLoadIdentity();
    GLuint gameower;
     glColor3f(1,1,1);
-   gameower =  LoadTexture( "textures/uwin.bmp" );
+   gameower =  LoadTexture( path );
    glBindTexture (GL_TEXTURE_2D, 0);
    glBindTexture(GL_TEXTURE_2D, gameower);
    glEnable(GL_TEXTURE_2D);
@@ -353,7 +382,7 @@ void g_ower_screen(){
 
 
 }
-
+/*
 void win(){
   // glutInit();
    glutDisplayFunc(g_ower_screen);
@@ -361,7 +390,7 @@ void win(){
   glutMainLoop();
 
 }
- 
+ */
 // ----------------------------------------------------------
 // specialKeys() Callback Function
 // ----------------------------------------------------------
@@ -400,6 +429,9 @@ void specialKeys( int key, int x, int y ) {
       case GLUT_KEY_F7:
          newcube();
       break;
+      case GLUT_KEY_F10:
+         newgame();
+      break;
    }
   glutPostRedisplay();
 }
@@ -412,19 +444,13 @@ void specialKeys( int key, int x, int y ) {
 int main(int argc, char* argv[]){
    //srand(time(NULL)); 
 
-    for(int x=0 ;x<maxsize ; x++){
-      for(int y=0; y<maxsize; y++){
-         for(int z=0; z<maxsize; z++){
-            matrix[x][y][z] = 0;
-         }
-      }
-   }
+   newgame();
 
-
+/*
   matrix[2][1][0]=11;
   matrix[1][1][0]=11;
   matrix[2][2][1]=11;
-  matrix[0][0][0]=1;
+  matrix[0][0][0]=1;*/
 
   //  Initialize GLUT and process user parameters
   glutInit(&argc,argv);
