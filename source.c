@@ -27,7 +27,8 @@ double rotate_y=0;
 double rotate_x=0;
 int matrix[maxsize][maxsize][maxsize] ;
 GLuint *                  textures[11];
-int gamemode =1;
+int gamemode =0;
+//int last_gamemode =0;
 
 // ----------------------------------------------------------
 // Function Prototypes
@@ -37,6 +38,7 @@ int gamemode =1;
 int step();
 void display();
 void specialKeys();
+void regularKeys();
 void newcube();
 GLuint LoadTexture();
 int step();
@@ -225,6 +227,8 @@ void newgame(){
    }
    newcube();
    newcube();
+   rotate_x=0;
+   rotate_y=0;
 }
 
 
@@ -235,7 +239,7 @@ void newcube(){
       y = rand() % maxsize;
       z = rand() % maxsize; 
    }while(matrix[x][y][z]);
-   matrix[x][y][z]=1;
+   matrix[x][y][z]=rand()%2+1;
 
 }
 
@@ -346,15 +350,22 @@ void display(){
   // Reset transformations
   glLoadIdentity();
  // Rotate when user changes rotate_x and rotate_y
+  glColor3f(1,1,1);
  switch(gamemode){
     case 1:
       maindraw();
-    break;
+    break; 
     case 2:
       g_ower_screen("textures/uwin.bmp");
     break;
     case 3:
       g_ower_screen("textures/ulos.bmp");
+    break;
+    case 0:
+      g_ower_screen("textures/welcome.bmp");
+    break;
+    case 4:
+      g_ower_screen("textures/help.bmp");
     break;
  }
    
@@ -366,7 +377,6 @@ void display(){
 void g_ower_screen( char path[]){
    glLoadIdentity();
    GLuint gameower;
-    glColor3f(1,1,1);
    gameower =  LoadTexture( path );
    glBindTexture (GL_TEXTURE_2D, 0);
    glBindTexture(GL_TEXTURE_2D, gameower);
@@ -395,11 +405,15 @@ void win(){
 // specialKeys() Callback Function
 // ----------------------------------------------------------
 void specialKeys( int key, int x, int y ) {
+   //printf("\n%d   %d    %d", key, x, y);
+  
+   if(gamemode ==0 ) newgame();
+   else
    switch(key){
-      case GLUT_KEY_RIGHT:
+      case GLUT_KEY_LEFT:
          rotate_y += 2.5;
       break;
-      case GLUT_KEY_LEFT:
+      case GLUT_KEY_RIGHT:
          rotate_y -= 2.5;
       break;
       case GLUT_KEY_UP:
@@ -426,14 +440,74 @@ void specialKeys( int key, int x, int y ) {
       case GLUT_KEY_F6:
          turn(4);
       break;
-      case GLUT_KEY_F7:
+      /*case GLUT_KEY_F7:
          newcube();
-      break;
+      break;*/
       case GLUT_KEY_F10:
          newgame();
       break;
+      /*case 'h':
+         if(gamemode == 4)gamemode = 1;
+         else gamemode = 4;
+      break;
+      case 27:
+         gamemode =0;
+      break;*/
    }
   glutPostRedisplay();
+  
+}
+void regularKeys( int key, int x, int y ) {
+   printf("\n%d  ", key);
+   if(gamemode ==0 ) newgame();
+   else
+   switch(key){
+      case 'a':
+         rotate_y += 2.5;
+      break;
+      case 'd':
+         rotate_y -= 2.5;
+      break;
+      case 'w':
+         rotate_x += 2.5;
+      break;
+      case 's':
+         rotate_x -= 2.5;
+      break;
+      case '1':
+         turn(1);
+      break;
+      case '2':
+         turn(0);
+      break;
+      case '3':
+         turn(3);
+      break;
+      case '4':
+         turn(2);
+      break;
+      case '5':
+         turn(5);
+      break;
+      case '6':
+         turn(4);
+      break;
+      /*case GLUT_KEY_F7:
+         newcube();
+      break;*/
+      case 'n':
+         newgame();
+      break;
+      case 'h':
+         if(gamemode == 4)gamemode = 1;
+         else gamemode = 4;
+      break;
+      case 27:
+         gamemode =0;
+      break;
+   }
+  glutPostRedisplay();
+  
 }
 
 
@@ -444,7 +518,7 @@ void specialKeys( int key, int x, int y ) {
 int main(int argc, char* argv[]){
    //srand(time(NULL)); 
 
-   newgame();
+   //newgame();
 
 /*
   matrix[2][1][0]=11;
@@ -484,6 +558,7 @@ int main(int argc, char* argv[]){
     glBindTexture (GL_TEXTURE_2D, 0);
   glutDisplayFunc(display);
   glutSpecialFunc(specialKeys);
+  glutKeyboardFunc(regularKeys);
   //  Pass control to GLUT for events
   glutMainLoop();
  
