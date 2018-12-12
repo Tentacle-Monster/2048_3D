@@ -284,40 +284,40 @@ void drawcube( double dx, double dy, double dz, int siz ){
    glEnable(GL_TEXTURE_2D);
     glColor3f(1.0, 1.0, 1.0);
    glBegin(GL_POLYGON);
-  glTexCoord2f(1, 0);     glVertex3f(  size + dx , -size + dy , -size + dz  );
-  glTexCoord2f(1, 1);     glVertex3f(  size + dx ,  size + dy , -size + dz  );
-  glTexCoord2f(0, 1);     glVertex3f( -size + dx ,  size + dy , -size + dz  );
-  glTexCoord2f(0, 0);     glVertex3f( -size + dx , -size + dy , -size + dz  );
+  glTexCoord2f(0, 0);     glVertex3f(  size + dx , -size + dy , -size + dz  );
+  glTexCoord2f(0, 1);     glVertex3f(  size + dx ,  size + dy , -size + dz  );
+  glTexCoord2f(1, 1);     glVertex3f( -size + dx ,  size + dy , -size + dz  );
+  glTexCoord2f(1, 0);     glVertex3f( -size + dx , -size + dy , -size + dz  );
   glEnd();
   glBegin(GL_POLYGON);
-  glTexCoord2f(0, 0);   glVertex3f(  size + dx , -size + dy , size + dz  );
-  glTexCoord2f(0, 1);   glVertex3f(  size + dx ,  size + dy , size + dz  );
-  glTexCoord2f(1, 1);   glVertex3f( -size + dx ,  size + dy , size + dz  );
-  glTexCoord2f(1, 0);   glVertex3f( -size + dx , -size + dy , size + dz  );
+  glTexCoord2f(1, 0);   glVertex3f(  size + dx , -size + dy , size + dz  );
+  glTexCoord2f(1, 1);   glVertex3f(  size + dx ,  size + dy , size + dz  );
+  glTexCoord2f(0, 1);   glVertex3f( -size + dx ,  size + dy , size + dz  );
+  glTexCoord2f(0, 0);   glVertex3f( -size + dx , -size + dy , size + dz  );
   glEnd();
   glBegin(GL_POLYGON);
-  glTexCoord2f(0, 0);   glVertex3f( size + dx , -size + dy , -size + dz  );
-  glTexCoord2f(0, 1);   glVertex3f( size + dx ,  size + dy , -size + dz  );
-  glTexCoord2f(1, 1);   glVertex3f( size + dx ,  size + dy ,  size + dz  );
-  glTexCoord2f(1, 0);   glVertex3f( size + dx , -size + dy ,  size + dz  );
+  glTexCoord2f(1, 0);   glVertex3f( size + dx , -size + dy , -size + dz  );
+  glTexCoord2f(1, 1);   glVertex3f( size + dx ,  size + dy , -size + dz  );
+  glTexCoord2f(0, 1);   glVertex3f( size + dx ,  size + dy ,  size + dz  );
+  glTexCoord2f(0, 0);   glVertex3f( size + dx , -size + dy ,  size + dz  );
   glEnd();
   glBegin(GL_POLYGON);
-  glTexCoord2f(0, 0);   glVertex3f( -size + dx , -size + dy ,  size + dz  );
-  glTexCoord2f(0, 1);   glVertex3f( -size + dx ,  size + dy ,  size + dz  );
-  glTexCoord2f(1, 1);   glVertex3f( -size + dx ,  size + dy , -size + dz  );
-  glTexCoord2f(1, 0);   glVertex3f( -size + dx , -size + dy , -size + dz  );
+  glTexCoord2f(1 ,0);   glVertex3f( -size + dx , -size + dy ,  size + dz  );
+  glTexCoord2f(1 ,1);   glVertex3f( -size + dx ,  size + dy ,  size + dz  );
+  glTexCoord2f(0 ,1);   glVertex3f( -size + dx ,  size + dy , -size + dz  );
+  glTexCoord2f(0, 0);   glVertex3f( -size + dx , -size + dy , -size + dz  );
   glEnd();
   glBegin(GL_POLYGON);
-  glTexCoord2f(0, 0);   glVertex3f(  size + dx ,  size + dy ,  size + dz  );
-  glTexCoord2f(0, 1);   glVertex3f(  size + dx ,  size + dy , -size + dz  );
-  glTexCoord2f(1, 1);   glVertex3f( -size + dx ,  size + dy , -size + dz  );
-  glTexCoord2f(1, 0);   glVertex3f( -size + dx ,  size + dy ,  size + dz  );
+  glTexCoord2f(1, 0);   glVertex3f(  size + dx ,  size + dy ,  size + dz  );
+  glTexCoord2f(1, 1);   glVertex3f(  size + dx ,  size + dy , -size + dz  );
+  glTexCoord2f(0, 1);   glVertex3f( -size + dx ,  size + dy , -size + dz  );
+  glTexCoord2f(0, 0);   glVertex3f( -size + dx ,  size + dy ,  size + dz  );
   glEnd();
   glBegin(GL_POLYGON);
-  glTexCoord2f(0, 0);   glVertex3f(  size + dx , -size + dy , -size + dz  );
-  glTexCoord2f(0, 1);   glVertex3f(  size + dx , -size + dy ,  size + dz  );
-  glTexCoord2f(1, 1);   glVertex3f( -size + dx , -size + dy ,  size + dz  );
-  glTexCoord2f(1, 0);   glVertex3f( -size + dx , -size + dy , -size + dz  );
+  glTexCoord2f(0, 1);   glVertex3f(  size + dx , -size + dy , -size + dz  );
+  glTexCoord2f(0, 0);   glVertex3f(  size + dx , -size + dy ,  size + dz  );
+  glTexCoord2f(1, 0);   glVertex3f( -size + dx , -size + dy ,  size + dz  );
+  glTexCoord2f(1, 1);   glVertex3f( -size + dx , -size + dy , -size + dz  );
   glEnd();
   glBindTexture(GL_TEXTURE_2D, 0);
   glDisable(GL_TEXTURE_2D);
@@ -370,8 +370,7 @@ void display(){
       g_ower_screen("textures/help.bmp");
     break;
  }
-   
-  // g_ower_screen();
+
   glPopMatrix();
   glFlush();
   glutSwapBuffers();
@@ -381,24 +380,18 @@ void display(){
    void ChangeSize(GLsizei w, GLsizei h)
     {
     GLfloat fAspect;
- 
     // Prevent a divide by zero
     if(h == 0)
         h = 1;
- 
     // Set Viewport to window dimensions
     glViewport(0, 0, w, h);
- 
     fAspect = (GLfloat)w/(GLfloat)h;
- 
     // Reset coordinate system
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    
- 
     // Produce the perspective projection
     gluPerspective(52.0f, fAspect, 1.0, 2000.0);
-    gluLookAt(0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    gluLookAt(0.0, 0.0, 2.05, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     }
@@ -423,11 +416,10 @@ void g_ower_screen( char path[]){
 }
 
 // ----------------------------------------------------------
-// specialKeys() Callback Function
+// Callback Functions
 // ----------------------------------------------------------
 void specialKeys( int key, int x, int y ) {
-   //printf("\n%d   %d    %d", key, x, y);
-  
+
    if(gamemode ==0 ) newgame();
    else
    switch(key){
@@ -469,7 +461,6 @@ void specialKeys( int key, int x, int y ) {
   
 }
 void regularKeys( int key, int x, int y ) {
-   //printf("\n%d  ", key);
    if(gamemode ==0 ) newgame();
    else
    switch(key){
@@ -507,9 +498,6 @@ void regularKeys( int key, int x, int y ) {
       case '6':
          turn(4);
       break;
-      /*case GLUT_KEY_F7:
-         newcube();
-      break;*/
       case 'n':
       case 'N':
          newgame();
@@ -533,32 +521,19 @@ void regularKeys( int key, int x, int y ) {
 // main() function
 // ----------------------------------------------------------
 int main(int argc, char* argv[]){
-   //srand(time(NULL)); 
-
-   //newgame();
-
-/*
-  matrix[2][1][0]=11;
-  matrix[1][1][0]=11;
-  matrix[2][2][1]=11;
-  matrix[0][0][0]=1;*/
-
-  //  Initialize GLUT and process user parameters
-  glutInit(&argc,argv);
- 
-   
+   srand(time(NULL)); 
+   glutInit(&argc,argv);
   //  Request double buffered true color window with Z-buffer
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
   glMatrixMode(GL_MODELVIEW);
   // Create window
-
   glutCreateWindow("2048 3D");
   glutReshapeWindow(700,700);
   //  Enable Z-buffer depth test
   glEnable(GL_DEPTH_TEST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+   // textures loading
     textures[0] = LoadTexture( "textures/1.bmp" );
     textures[1] = LoadTexture( "textures/2.bmp" );
     textures[2] = LoadTexture( "textures/3.bmp" );
@@ -572,7 +547,7 @@ int main(int argc, char* argv[]){
     textures[10] = LoadTexture( "textures/11.bmp" );
         
     
-    glBindTexture (GL_TEXTURE_2D, 0);
+  glBindTexture (GL_TEXTURE_2D, 0);
   glutDisplayFunc(display);
   glutSpecialFunc(specialKeys);
   glutKeyboardFunc(regularKeys);
