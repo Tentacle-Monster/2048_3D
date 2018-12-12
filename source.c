@@ -49,7 +49,7 @@ void drawmatrix();
 void g_ower_screen();
 void maindraw();
 void newgame();
-
+void ChangeSize();
 
 
 
@@ -324,8 +324,10 @@ void drawcube( double dx, double dy, double dz, int siz ){
 }
  
 void maindraw(){
+   glPushMatrix();
    glRotatef( rotate_x, 1.0, 0.0, 0.0 );
   glRotatef( rotate_y, 0.0, 1.0, 0.0 );
+  glScalef(0.90f, 0.90f, 0.90f);
    for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
@@ -370,10 +372,37 @@ void display(){
  }
    
   // g_ower_screen();
- glFlush();
+  glPopMatrix();
+  glFlush();
   glutSwapBuffers();
  
 }
+
+   void ChangeSize(GLsizei w, GLsizei h)
+    {
+    GLfloat fAspect;
+ 
+    // Prevent a divide by zero
+    if(h == 0)
+        h = 1;
+ 
+    // Set Viewport to window dimensions
+    glViewport(0, 0, w, h);
+ 
+    fAspect = (GLfloat)w/(GLfloat)h;
+ 
+    // Reset coordinate system
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    
+ 
+    // Produce the perspective projection
+    gluPerspective(52.0f, fAspect, 1.0, 2000.0);
+    gluLookAt(0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    }
+
 void g_ower_screen( char path[]){
    glLoadIdentity();
    GLuint gameower;
@@ -392,15 +421,7 @@ void g_ower_screen( char path[]){
 
 
 }
-/*
-void win(){
-  // glutInit();
-   glutDisplayFunc(g_ower_screen);
-    glutSpecialFunc(0);
-  glutMainLoop();
 
-}
- */
 // ----------------------------------------------------------
 // specialKeys() Callback Function
 // ----------------------------------------------------------
@@ -411,16 +432,16 @@ void specialKeys( int key, int x, int y ) {
    else
    switch(key){
       case GLUT_KEY_LEFT:
-         rotate_y += 2.5;
-      break;
-      case GLUT_KEY_RIGHT:
          rotate_y -= 2.5;
       break;
+      case GLUT_KEY_RIGHT:
+         rotate_y += 2.5;
+      break;
       case GLUT_KEY_UP:
-         rotate_x += 2.5;
+         rotate_x -= 2.5;
       break;
       case GLUT_KEY_DOWN:
-         rotate_x -= 2.5;
+         rotate_x += 2.5;
       break;
       case GLUT_KEY_F1:
          turn(1);
@@ -440,39 +461,33 @@ void specialKeys( int key, int x, int y ) {
       case GLUT_KEY_F6:
          turn(4);
       break;
-      /*case GLUT_KEY_F7:
-         newcube();
-      break;*/
       case GLUT_KEY_F10:
          newgame();
       break;
-      /*case 'h':
-         if(gamemode == 4)gamemode = 1;
-         else gamemode = 4;
-      break;
-      case 27:
-         gamemode =0;
-      break;*/
    }
   glutPostRedisplay();
   
 }
 void regularKeys( int key, int x, int y ) {
-   printf("\n%d  ", key);
+   //printf("\n%d  ", key);
    if(gamemode ==0 ) newgame();
    else
    switch(key){
       case 'a':
-         rotate_y += 2.5;
-      break;
-      case 'd':
+      case 'A':
          rotate_y -= 2.5;
       break;
+      case 'd':
+      case 'D':
+         rotate_y += 2.5;
+      break;
       case 'w':
-         rotate_x += 2.5;
+      case 'W':
+         rotate_x -= 2.5;
       break;
       case 's':
-         rotate_x -= 2.5;
+      case 'S':
+         rotate_x += 2.5;
       break;
       case '1':
          turn(1);
@@ -496,9 +511,11 @@ void regularKeys( int key, int x, int y ) {
          newcube();
       break;*/
       case 'n':
+      case 'N':
          newgame();
       break;
       case 'h':
+      case 'H':
          if(gamemode == 4)gamemode = 1;
          else gamemode = 4;
       break;
@@ -559,6 +576,7 @@ int main(int argc, char* argv[]){
   glutDisplayFunc(display);
   glutSpecialFunc(specialKeys);
   glutKeyboardFunc(regularKeys);
+  glutReshapeFunc(ChangeSize);
   //  Pass control to GLUT for events
   glutMainLoop();
  
