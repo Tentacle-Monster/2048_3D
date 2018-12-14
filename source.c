@@ -20,6 +20,7 @@
 #define maxsize 4
 #define winrate 12
 #define ss 0.6f;
+#define _USE_MATH_DEFINES
 // ----------------------------------------------------------
 // Global Variables
 // ----------------------------------------------------------
@@ -28,6 +29,9 @@ double rotate_x=0;
 int matrix[maxsize][maxsize][maxsize] ;
 GLuint *                  textures[11];
 int gamemode =0;
+const double PI  =3.141592653589793238463;
+double radius = 2.0;
+double h_last = -0.1;
 //int last_gamemode =0;
 
 // ----------------------------------------------------------
@@ -50,6 +54,30 @@ void g_ower_screen();
 void maindraw();
 void newgame();
 void ChangeSize();
+static int font_index=0;
+
+
+
+
+
+
+
+void print_bitmap_string(/*void* font,*/ char* s)
+{
+
+      while (*s) {
+         glutBitmapCharacter( GLUT_BITMAP_TIMES_ROMAN_24, *s);
+         s++;
+      }
+  
+}
+
+
+
+
+
+
+
 
 
 
@@ -239,7 +267,7 @@ void newcube(){
       y = rand() % maxsize;
       z = rand() % maxsize; 
    }while(matrix[x][y][z]);
-   matrix[x][y][z]=rand()%2+1;
+   matrix[x][y][z]=1  /*+ (rand()%4 )*/ ;
 
 }
 
@@ -325,8 +353,16 @@ void drawcube( double dx, double dy, double dz, int siz ){
  
 void maindraw(){
    glPushMatrix();
-   glRotatef( rotate_x, 1.0, 0.0, 0.0 );
-  glRotatef( rotate_y, 0.0, 1.0, 0.0 );
+ //  glRotatef( rotate_x, 1.0, 0.0, 0.0 );
+ // glRotatef( rotate_y, 0.0, 1.0, 0.0 );
+ //if(cos(rotate_x * PI / 360.0)!= 0.0)   //zero vecter protection
+ double h= cos(rotate_x * PI / 360.0);
+ //if(fabs(h) > 0.00001) h= h_last;
+ if(h<0.000001) h+= 0.000001;
+ gluLookAt(cos( rotate_y* PI / 360.0)*h *radius, sin(rotate_x* PI / 360.0)*radius,-radius* h*sin(rotate_y * PI / 360.0), 0.0, 0.0, 0.0, 0.0, h, 0.0);
+  printf ("%f     %f    %f    \n",   cos( rotate_y* PI / 360.0)*cos(rotate_x* PI / 360.0) *radius, sin(rotate_x* PI / 360.0)*radius, -radius* cos(rotate_x * PI / 360.0)*sin(rotate_y * PI / 360.0) );
+  
+  
   glScalef(0.90f, 0.90f, 0.90f);
    for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
@@ -338,7 +374,7 @@ void maindraw(){
       }
    }
    drawmatrix();
-  
+   h_last = h;
 }
 
 // ----------------------------------------------------------
@@ -371,6 +407,24 @@ void display(){
     break;
  }
 
+  //coming soon
+                                       //char* bitmap_font_names[7] = {"This is my firs text"};
+
+                                       // GLfloat x, y, ystep, yild, stroke_scale;
+
+                                       /* Draw the strings, according to the current mode and font. */
+                                       //glTranslatef(0.5,-1.0,0);
+                                       //glColor3f(1.0, 1.0, 0.0);
+                                       //x = 0.0;
+                                       //y = 0.0;
+                                       //ystep  = 100.0;
+                                       //yild   = 20.0;
+                                       //   glRasterPos2f(-150, y+1.25*yild);
+                                       //  print_bitmap_string(/*bitmap_font_names[0]*/"score: ");
+
+
+
+
   glPopMatrix();
   glFlush();
   glutSwapBuffers();
@@ -391,7 +445,6 @@ void display(){
     glLoadIdentity();
     // Produce the perspective projection
     gluPerspective(52.0f, fAspect, 1.0, 2000.0);
-    gluLookAt(0.0, 0.0, 2.05, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     }
@@ -507,6 +560,20 @@ void regularKeys( int key, int x, int y ) {
          if(gamemode == 4)gamemode = 1;
          else gamemode = 4;
       break;
+      case '0': 
+         turn(1);
+         turn(3);
+         turn(5);
+      break;
+      case '-': 
+         newcube();
+      break;
+      case '*':
+      for(int i=0; i<=100; i++){
+         //if(!turn(1)+turn(3)+turn(5))if(!turn(2))if(!turn(4))turn(6);
+         if(!turn(1))if(!turn(3))if(!turn(5))if(!turn(2))if(!turn(4))turn(6);
+      }
+      break;
       case 27:
          gamemode =0;
       break;
@@ -528,7 +595,7 @@ int main(int argc, char* argv[]){
   glMatrixMode(GL_MODELVIEW);
   // Create window
   glutCreateWindow("2048 3D");
-  glutReshapeWindow(700,700);
+  //glutReshapeWindow(700,700);
   //  Enable Z-buffer depth test
   glEnable(GL_DEPTH_TEST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
