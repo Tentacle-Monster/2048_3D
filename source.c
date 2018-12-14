@@ -32,6 +32,7 @@ int gamemode =0;
 const double PI  =3.141592653589793238463;
 double radius = 2.0;
 double h_last = -0.1;
+GLfloat x, y, ystep, yild, stroke_scale;
 //int last_gamemode =0;
 
 // ----------------------------------------------------------
@@ -55,7 +56,7 @@ void maindraw();
 void newgame();
 void ChangeSize();
 static int font_index=0;
-
+void banner();
 
 
 
@@ -76,7 +77,30 @@ void print_bitmap_string(/*void* font,*/ char* s)
 
 
 
+void banner(){
+   char* bitmap_font_names[7] = {"This is my firs text"};
 
+                                       // GLfloat x, y, ystep, yild, stroke_scale;
+
+                                       /* Draw the strings, according to the current mode and font. */
+    
+
+      double h= cos(rotate_x * PI / 360.0);
+ //if(fabs(h) > 0.00001) h= h_last;
+ if(h<0.000001) h+= 0.000001;
+ glTranslatef(cos( rotate_y* PI / 360.0)*h *radius, sin(rotate_x* PI / 360.0)*radius,-radius* h*sin(rotate_y * PI / 360.0));
+ 
+                                       glColor3f(1.0, 1.0, 0.0);
+                                       x = 0.0;
+                                       y = 0.0;
+                                       ystep  = 100.0;
+                                       yild   = 20.0;
+                                       //glRasterPos2f(cos( rotate_y* PI / 360.0)*h *radius-150, sin(rotate_x* PI / 360.0)*radius+y+1.25*yild);
+                                       glRasterPos2f(-5,5);
+                                       print_bitmap_string(bitmap_font_names[0]/*"score: "*/);
+
+
+}
 
 
 
@@ -306,6 +330,8 @@ void drawmatrix(){
 }
 
 
+
+
 void drawcube( double dx, double dy, double dz, int siz ){
    double size = 0.06+siz*0.005 ;
    glBindTexture(GL_TEXTURE_2D, textures[siz-1]);
@@ -352,16 +378,17 @@ void drawcube( double dx, double dy, double dz, int siz ){
 }
  
 void maindraw(){
+     double h= cos(rotate_x * PI / 360.0);
+ //if(fabs(h) > 0.00001) h= h_last;
+ if(h<0.000001) h+= 0.000001;
+ gluLookAt(cos( rotate_y* PI / 360.0)*h *radius, sin(rotate_x* PI / 360.0)*radius,-radius* h*sin(rotate_y * PI / 360.0), 0.0, 0.0, 0.0, 0.0, h, 0.0);
+  //printf ("%f     %f    %f    \n",   cos( rotate_y* PI / 360.0)*cos(rotate_x* PI / 360.0) *radius, sin(rotate_x* PI / 360.0)*radius, -radius* cos(rotate_x * PI / 360.0)*sin(rotate_y * PI / 360.0) );
+  
    glPushMatrix();
  //  glRotatef( rotate_x, 1.0, 0.0, 0.0 );
  // glRotatef( rotate_y, 0.0, 1.0, 0.0 );
  //if(cos(rotate_x * PI / 360.0)!= 0.0)   //zero vecter protection
- double h= cos(rotate_x * PI / 360.0);
- //if(fabs(h) > 0.00001) h= h_last;
- if(h<0.000001) h+= 0.000001;
- gluLookAt(cos( rotate_y* PI / 360.0)*h *radius, sin(rotate_x* PI / 360.0)*radius,-radius* h*sin(rotate_y * PI / 360.0), 0.0, 0.0, 0.0, 0.0, h, 0.0);
-  printf ("%f     %f    %f    \n",   cos( rotate_y* PI / 360.0)*cos(rotate_x* PI / 360.0) *radius, sin(rotate_x* PI / 360.0)*radius, -radius* cos(rotate_x * PI / 360.0)*sin(rotate_y * PI / 360.0) );
-  
+ 
   
   glScalef(0.90f, 0.90f, 0.90f);
    for(int x=0 ;x<maxsize ; x++){
@@ -374,14 +401,15 @@ void maindraw(){
       }
    }
    drawmatrix();
-   h_last = h;
+   banner();
+
 }
 
 // ----------------------------------------------------------
 // display() Callback function
 // ----------------------------------------------------------
 void display(){
- 
+   
   //  Clear screen and Z-buffer
   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
    
@@ -389,6 +417,7 @@ void display(){
   glLoadIdentity();
  // Rotate when user changes rotate_x and rotate_y
   glColor3f(1,1,1);
+
  switch(gamemode){
     case 1:
       maindraw();
@@ -450,7 +479,10 @@ void display(){
     }
 
 void g_ower_screen( char path[]){
+   //gluLookAt(0, 0,-2, 0.0, 0.0, 0.0, 0.0, 1, 0);
+   
    glLoadIdentity();
+   gluLookAt(0.0001, 0.0001, 2.05, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
    GLuint gameower;
    gameower =  LoadTexture( path );
    glBindTexture (GL_TEXTURE_2D, 0);
