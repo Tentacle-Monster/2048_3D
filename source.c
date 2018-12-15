@@ -18,7 +18,7 @@
 #include<GL/glx.h>
 #include<GL/glu.h>
 #define maxsize 4
-#define winrate 12
+#define winrate 11
 #define ss 0.6f;
 #define _USE_MATH_DEFINES
 // ----------------------------------------------------------
@@ -32,6 +32,7 @@ int gamemode =0;
 const double PI  =3.141592653589793238463;
 double radius = 2.0;
 double h_last = -0.1;
+int score = 0;
 GLfloat x, y, ystep, yild, stroke_scale;
 //int last_gamemode =0;
 
@@ -60,6 +61,19 @@ void banner();
 
 
 
+char * toArray(int number)
+    {
+        int n = 15;
+        int i;
+      char *numberArray = calloc(n, sizeof(char));
+        for ( i = n-1; i >= 0; i-- )
+        {
+            numberArray[i] = number % 10 +48;
+            number /= 10;
+        }
+        return numberArray;
+    }
+
 
 
 
@@ -67,7 +81,7 @@ void print_bitmap_string(/*void* font,*/ char* s)
 {
 
       while (*s) {
-         glutBitmapCharacter( GLUT_BITMAP_TIMES_ROMAN_24, *s);
+         glutBitmapCharacter( GLUT_BITMAP_HELVETICA_12, *s);
          s++;
       }
   
@@ -78,28 +92,21 @@ void print_bitmap_string(/*void* font,*/ char* s)
 
 
 void banner(){
-   char* bitmap_font_names[7] = {"This is my firs text"};
-
-                                       // GLfloat x, y, ystep, yild, stroke_scale;
-
-                                       /* Draw the strings, according to the current mode and font. */
-    
-
-      double h= cos(rotate_x * PI / 360.0);
- //if(fabs(h) > 0.00001) h= h_last;
- if(h<0.000001) h+= 0.000001;
- glTranslatef(cos( rotate_y* PI / 360.0)*h *radius, sin(rotate_x* PI / 360.0)*radius,-radius* h*sin(rotate_y * PI / 360.0));
- 
-                                       glColor3f(1.0, 1.0, 0.0);
-                                       x = 0.0;
-                                       y = 0.0;
-                                       ystep  = 100.0;
-                                       yild   = 20.0;
-                                       //glRasterPos2f(cos( rotate_y* PI / 360.0)*h *radius-150, sin(rotate_x* PI / 360.0)*radius+y+1.25*yild);
-                                       glRasterPos2f(-5,5);
-                                       print_bitmap_string(bitmap_font_names[0]/*"score: "*/);
+   glMatrixMode(GL_PROJECTION);
+   glPushMatrix();
+   glLoadIdentity();
+   gluOrtho2D(0.0,1.0,1.0,0.0);
+   glMatrixMode(GL_MODELVIEW);
+   glLoadIdentity();
 
 
+          glColor3f(1.0, 1.0, 0.0);
+          glRasterPos3f(0.0,0.03,radius*0.5);
+          print_bitmap_string(toArray(score));
+   glMatrixMode(GL_PROJECTION);
+   glPopMatrix();
+   glMatrixMode(GL_MODELVIEW);
+   glPopMatrix();
 }
 
 
@@ -175,6 +182,7 @@ int step( int dir, int pos){
                   ret++;               }
             else if(matrix[pos+delta][y][z]==matrix[pos][y][z]&&matrix[pos][y][z]>0){
                matrix[pos+delta][y][z]++;
+               score += pow(2, matrix[pos+delta][y][z]);
                matrix[pos+delta][y][z]*=-1;
                matrix[pos][y][z]=0;
                ret++;
@@ -194,6 +202,7 @@ int step( int dir, int pos){
                   ret++;               }
             else if(matrix[x][pos+delta][z]==matrix[x][pos][z]&&matrix[x][pos][z]>0){
                matrix[x][pos+delta][z]++;
+               score += pow(2, matrix[x][pos+delta][z]);
                matrix[x][pos+delta][z]*=-1;
                matrix[x][pos][z]=0;
                ret++;
@@ -213,9 +222,11 @@ int step( int dir, int pos){
                   ret++;               }
             else if(matrix[x][y][pos+delta]==matrix[x][y][pos]&&matrix[x][y][pos]>0){
                matrix[x][y][pos+delta]++;
+               score += pow(2, matrix[x][y][pos+delta]);
                matrix[x][y][pos+delta]*=-1;
                matrix[x][y][pos]=0;
                ret++;
+               
                }
             }
          }
@@ -262,9 +273,11 @@ int turn(int dir){
          }
       }
    }
+   
    if (!space) gamemode = 3;
    else
    if(ret)newcube();
+   printf("%d\n",score);
    return(ret);
 }
 
@@ -378,6 +391,7 @@ void drawcube( double dx, double dy, double dz, int siz ){
 }
  
 void maindraw(){
+
      double h= cos(rotate_x * PI / 360.0);
  //if(fabs(h) > 0.00001) h= h_last;
  if(h<0.000001) h+= 0.000001;
@@ -402,6 +416,7 @@ void maindraw(){
    }
    drawmatrix();
    banner();
+
 
 }
 
@@ -479,8 +494,6 @@ void display(){
     }
 
 void g_ower_screen( char path[]){
-   //gluLookAt(0, 0,-2, 0.0, 0.0, 0.0, 0.0, 1, 0);
-   
    glLoadIdentity();
    gluLookAt(0.0001, 0.0001, 2.05, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
    GLuint gameower;
@@ -493,7 +506,7 @@ void g_ower_screen( char path[]){
   glTexCoord2f(1, 1);     glVertex2f( 1 , 1  );
   glTexCoord2f(0, 1);     glVertex2f( -1 , 1  );
   glTexCoord2f(0, 0);     glVertex2f( -1 , -1  );
-   glDisable(GL_POLYGON);
+   //glDisable(GL_POLYGON);
   glEnd();
   glutPostRedisplay();
 
