@@ -34,6 +34,7 @@ double radius = 2.0;
 double h_last = -0.1;
 int score = 0;
 GLfloat x, y, ystep, yild, stroke_scale;
+int winner = 0;
 //int last_gamemode =0;
 
 // ----------------------------------------------------------
@@ -159,8 +160,24 @@ glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_REPEAT );
 glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_REPEAT );
 gluBuild2DMipmaps( GL_TEXTURE_2D, 3, width, height,GL_RGB, GL_UNSIGNED_BYTE, data );
 free( data );
-glBindTexture(GL_TEXTURE_2D, 0);
+glBindTexture(GL_TEXTURE_2D, 0); 
 return texture;
+}
+
+int turntest(){
+   int lim = maxsize-1;
+   int currient;
+   for(int x=0 ;x<lim ; x++){
+      for(int y=0; y<lim; y++){
+         for(int z=0; z<lim; z++){
+            currient = matrix[x][y][z];
+            if(currient == matrix[x][y][z+1] || currient == matrix[x][y][z+1] || currient == matrix[x][y][z+1]  )return 1;
+         }
+      }
+   }
+   currient = matrix[lim][lim][lim];
+            if(currient == matrix[lim][lim][lim-1] || currient == matrix[lim][lim-1][lim] || currient == matrix[lim-1][lim][lim]  )return 1;
+   return 0;   
 }
 
 
@@ -266,18 +283,23 @@ int turn(int dir){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
             matrix[x][y][z]=abs(matrix[x][y][z]);
-            if(matrix[x][y][z]>=winrate){
+            if(matrix[x][y][z]>=winrate && !winner){
                gamemode = 2;
+               winner = 1;
             }
             else if(!matrix[x][y][z]) space++;
          }
       }
    }
-   
-   if (!space) gamemode = 3;
+   if(ret){
+   if (!space ) gamemode = 3;
    else
    if(ret)newcube();
-   printf("%d\n",score);
+  // printf("%d\n",score);
+   }
+   else if(!turntest && !space){
+      gamemode = 3;
+   }
    return(ret);
 }
 
