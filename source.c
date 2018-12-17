@@ -35,13 +35,14 @@ double h_last = -0.1;
 int score = 0;
 GLfloat x, y, ystep, yild, stroke_scale;
 int winner = 0;
+int usematrix = 1;
 //int last_gamemode =0;
 
 // ----------------------------------------------------------
 // Function Prototypes
 // ----------------------------------------------------------
 
-
+int turntest();
 int step();
 void display();
 void specialKeys();
@@ -167,17 +168,20 @@ return texture;
 int turntest(){
    int lim = maxsize-1;
    int currient;
-   for(int x=0 ;x<lim ; x++){
-      for(int y=0; y<lim; y++){
-         for(int z=0; z<lim; z++){
+   int rt = 0;
+   int tr1 = 1;
+   for(int x=0 ;x<maxsize ; x++){
+      for(int y=0; y<maxsize; y++){
+         for(int z=0; z<maxsize; z++){
             currient = matrix[x][y][z];
-            if(currient == matrix[x][y][z+1] || currient == matrix[x][y][z+1] || currient == matrix[x][y][z+1]  )return 1;
+         if(currient == matrix[x][y][z+1] && z+1<maxsize || currient == matrix[x][y+1][z] && y+1<maxsize || currient == matrix[x+1][y][z] && x+1<maxsize  )return( 1);
          }
       }
    }
-   currient = matrix[lim][lim][lim];
-            if(currient == matrix[lim][lim][lim-1] || currient == matrix[lim][lim-1][lim] || currient == matrix[lim-1][lim][lim]  )return 1;
-   return 0;   
+   /*currient = matrix[lim][lim][lim];
+            if(currient == matrix[lim][lim][lim-1] || currient == matrix[lim][lim-1][lim] || currient == matrix[lim-1][lim][lim])return(1);
+     // puts("fq");*/
+     return (0);   
 }
 
 
@@ -292,12 +296,15 @@ int turn(int dir){
       }
    }
    if(ret){
+    //  puts("turn");
    if (!space ) gamemode = 3;
    else
-   if(ret)newcube();
+   newcube();
   // printf("%d\n",score);
    }
-   else if(!turntest && !space){
+   else 
+     // printf("noturn |%d |%d\n", space, turntest());
+    if(!turntest() && !space){
       gamemode = 3;
    }
    return(ret);
@@ -305,6 +312,7 @@ int turn(int dir){
 
 void newgame(){
    gamemode = 1;
+   winner = 0;
    for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
@@ -368,7 +376,7 @@ void drawmatrix(){
 
 
 void drawcube( double dx, double dy, double dz, int siz ){
-   double size = 0.06+siz*0.005 ;
+   double size = 0.06/*+siz*0.005*/ ;
    glBindTexture(GL_TEXTURE_2D, textures[siz-1]);
    glEnable(GL_TEXTURE_2D);
     glColor3f(1.0, 1.0, 1.0);
@@ -430,13 +438,13 @@ void maindraw(){
    for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
-            if(matrix[x][y][z]!=0 && matrix[x][y][z]<winrate ){
+            if(matrix[x][y][z]!=0 /*&& matrix[x][y][z]<winrate*/ ){
             drawcube(1.2/maxsize*x-0.45, 1.2/maxsize*y-0.45, 1.2/maxsize*z-0.45, matrix[x][y][z]);
             }
          }
       }
    }
-   drawmatrix();
+   if(usematrix)drawmatrix();
    banner();
 
 
@@ -643,6 +651,9 @@ void regularKeys( int key, int x, int y ) {
       break;
       case 27:
          gamemode =0;
+      break;
+      case 'm':
+      usematrix ^= 1;
       break;
    }
   glutPostRedisplay();
