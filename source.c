@@ -9,17 +9,18 @@
 // ----------------------------------------------------------
 #include <stdio.h>
 #include <stdarg.h>
-#include<stdlib.h>
-#include<string.h>
+#include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <time.h>
 #include <GL/glut.h>
-#include<GL/gl.h>
-#include<GL/glx.h>
-#include<GL/glu.h>
+#include <GL/gl.h>
+#include <GL/glx.h>
+#include <GL/glu.h>
 #define maxsize 4
 #define winrate 11
-#define ss 0.6f;
+#define limit 11
+#define ss 0.6f 
 #define _USE_MATH_DEFINES
 // ----------------------------------------------------------
 // Global Variables
@@ -27,7 +28,7 @@
 double rotate_y=0; 
 double rotate_x=0;
 int matrix[maxsize][maxsize][maxsize] ;
-GLuint *                  textures[11];
+GLuint *                  textures[limit];
 int gamemode =0;
 const double PI  =3.141592653589793238463;
 double radius = 2.0;
@@ -35,7 +36,9 @@ double h_last = -0.1;
 int score = 0;
 GLfloat x, y, ystep, yild, stroke_scale;
 int winner = 0;
-int usematrix = 1;
+Bool usematrix = 1;
+Bool help = 1;
+//char *               notification_text[];
 //int last_gamemode =0;
 
 // ----------------------------------------------------------
@@ -111,6 +114,35 @@ void banner(){
    glPopMatrix();
 }
 
+
+void notification(){
+   glMatrixMode(GL_PROJECTION);
+   glPushMatrix();
+   glLoadIdentity();
+   gluOrtho2D(0.0,1.0,1.0,0.0);
+   glMatrixMode(GL_MODELVIEW);
+   glLoadIdentity();
+
+
+          glColor3f(0.0, 1.0, 1.0);
+          glRasterPos3f(0.0,0.06,radius*0.5);
+          print_bitmap_string("wasd/arrows - rotate cube");
+          glRasterPos3f(0.0,0.09,radius*0.5);
+          print_bitmap_string("1-6/F1-F6 - turn  ");
+          glRasterPos3f(0.0,0.12,radius*0.5);
+          print_bitmap_string("Esc- return to menu  ");
+          glRasterPos3f(0.0,0.15,radius*0.5);
+          print_bitmap_string("F10 - start new game  ");
+          glRasterPos3f(0.0,0.18,radius*0.5);
+          print_bitmap_string("h- hide help  ");
+          glRasterPos3f(0.0,0.21,radius*0.5);
+          print_bitmap_string("m - hide matrix  ");
+          
+   glMatrixMode(GL_PROJECTION);
+   glPopMatrix();
+   glMatrixMode(GL_MODELVIEW);
+   glPopMatrix();
+}
 
 
 
@@ -324,6 +356,7 @@ void newgame(){
    newcube();
    rotate_x=0;
    rotate_y=0;
+   score = 0;
 }
 
 
@@ -446,7 +479,7 @@ void maindraw(){
    }
    if(usematrix)drawmatrix();
    banner();
-
+   if(help)notification();
 
 }
 
@@ -552,10 +585,10 @@ void specialKeys( int key, int x, int y ) {
    else
    switch(key){
       case GLUT_KEY_LEFT:
-         rotate_y -= 2.5;
+         rotate_y += 2.5;
       break;
       case GLUT_KEY_RIGHT:
-         rotate_y += 2.5;
+         rotate_y -= 2.5;
       break;
       case GLUT_KEY_UP:
          rotate_x -= 2.5;
@@ -594,11 +627,11 @@ void regularKeys( int key, int x, int y ) {
    switch(key){
       case 'a':
       case 'A':
-         rotate_y -= 2.5;
+         rotate_y += 2.5;
       break;
       case 'd':
       case 'D':
-         rotate_y += 2.5;
+         rotate_y -= 2.5;
       break;
       case 'w':
       case 'W':
@@ -632,8 +665,9 @@ void regularKeys( int key, int x, int y ) {
       break;
       case 'h':
       case 'H':
-         if(gamemode == 4)gamemode = 1;
-         else gamemode = 4;
+        /* if(gamemode == 4)gamemode = 1;
+         else gamemode = 4;*/
+         help = !help;
       break;
       case '0': 
          turn(1);
@@ -646,7 +680,7 @@ void regularKeys( int key, int x, int y ) {
       case '*':
       for(int i=0; i<=100; i++){
          //if(!turn(1)+turn(3)+turn(5))if(!turn(2))if(!turn(4))turn(6);
-         if(!turn(1))if(!turn(3))if(!turn(5))if(!turn(2))if(!turn(4))turn(6);
+         if(!turn(1))if(!turn(3))if(!turn(5))if(!turn(6))if(!turn(4))turn(2);
       }
       break;
       case 27:
@@ -666,6 +700,8 @@ void regularKeys( int key, int x, int y ) {
 // main() function
 // ----------------------------------------------------------
 int main(int argc, char* argv[]){
+   
+   //notification_text[] = {"you are too much gay realy, it's a problem"};
    srand(time(NULL)); 
    glutInit(&argc,argv);
   //  Request double buffered true color window with Z-buffer
