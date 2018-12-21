@@ -1,9 +1,3 @@
-
-// Controls:    Left Arrow  - Rotate Left
-//              Right Arrow - Rotate Right
-//              Up Arrow    - Rotate Up
-//              Down Arrow  - Rotate Down     
- 
 // ----------------------------------------------------------
 // Includes
 // ----------------------------------------------------------
@@ -25,19 +19,35 @@
 // ----------------------------------------------------------
 // Global Variables
 // ----------------------------------------------------------
+typedef struct {
+int matrix[maxsize][maxsize][maxsize] ;
+int score;
+
+}gamespace;
+const int truesize = maxsize*maxsize*maxsize;
 double rotate_y=0; 
 double rotate_x=0;
-int matrix[maxsize][maxsize][maxsize] ;
+//int inuse.matrix[maxsize][maxsize][maxsize] ;
+//int lastturn[maxsize][maxsize][maxsize];
+//int bufer[maxsize][maxsize][maxsize];
 GLuint *                  textures[limit];
 int gamemode =0;
 const double PI  =3.141592653589793238463;
 double radius = 2.0;
 double h_last = -0.1;
-int score = 0;
+//int score = 0;
+//int lastscore= 0;
+//int bufscore= 0;
 GLfloat x, y, ystep, yild, stroke_scale;
 int winner = 0;
 Bool usematrix = 1;
 Bool help = 1;
+Bool modyfied = 0;
+gamespace inuse;
+gamespace bufer;
+gamespace back;
+
+
 //char *               notification_text[];
 //int last_gamemode =0;
 
@@ -63,6 +73,11 @@ void newgame();
 void ChangeSize();
 static int font_index=0;
 void banner();
+char * toArray();
+void print_bitmap_string();
+void banner();
+Bool turntest();
+
 
 
 
@@ -107,7 +122,7 @@ void banner(){
 
           glColor3f(1.0, 1.0, 0.0);
           glRasterPos3f(0.0,0.03,radius*0.5);
-          print_bitmap_string(toArray(score));
+          print_bitmap_string(toArray(inuse.score));
    glMatrixMode(GL_PROJECTION);
    glPopMatrix();
    glMatrixMode(GL_MODELVIEW);
@@ -125,18 +140,18 @@ void notification(){
 
 
           glColor3f(0.0, 1.0, 1.0);
-          glRasterPos3f(0.0,0.06,radius*0.5);
+          glRasterPos3f(0.0,0.061,radius*0.5);
           print_bitmap_string("wasd/arrows - rotate cube");
-          glRasterPos3f(0.0,0.09,radius*0.5);
+          glRasterPos3f(0.0,0.092,radius*0.5);
           print_bitmap_string("1-6/F1-F6 - turn  ");
-          glRasterPos3f(0.0,0.12,radius*0.5);
+          glRasterPos3f(0.0,0.123,radius*0.5);
           print_bitmap_string("Esc- return to menu  ");
-          glRasterPos3f(0.0,0.15,radius*0.5);
+          glRasterPos3f(0.0,0.154,radius*0.5);
           print_bitmap_string("F10 - start new game  ");
-          glRasterPos3f(0.0,0.18,radius*0.5);
+          glRasterPos3f(0.0,0.185,radius*0.5);
           print_bitmap_string("h- hide help  ");
-          glRasterPos3f(0.0,0.21,radius*0.5);
-          print_bitmap_string("m - hide matrix  ");
+          glRasterPos3f(0.0,0.216,radius*0.5);
+          print_bitmap_string("m - hide inuse.matrix  ");
           
    glMatrixMode(GL_PROJECTION);
    glPopMatrix();
@@ -197,7 +212,7 @@ glBindTexture(GL_TEXTURE_2D, 0);
 return texture;
 }
 
-int turntest(){
+Bool turntest(){
    int lim = maxsize-1;
    int currient;
    int rt = 0;
@@ -205,15 +220,12 @@ int turntest(){
    for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
-            currient = matrix[x][y][z];
-         if(currient == matrix[x][y][z+1] && z+1<maxsize || currient == matrix[x][y+1][z] && y+1<maxsize || currient == matrix[x+1][y][z] && x+1<maxsize  )return( 1);
+            currient = inuse.matrix[x][y][z];
+         if(currient == inuse.matrix[x][y][z+1] && z+1<maxsize || currient == inuse.matrix[x][y+1][z] && y+1<maxsize || currient == inuse.matrix[x+1][y][z] && x+1<maxsize  )return( 1);
          }
       }
    }
-   /*currient = matrix[lim][lim][lim];
-            if(currient == matrix[lim][lim][lim-1] || currient == matrix[lim][lim-1][lim] || currient == matrix[lim-1][lim][lim])return(1);
-     // puts("fq");*/
-     return (0);   
+   return (0);   
 }
 
 
@@ -228,16 +240,16 @@ int step( int dir, int pos){
       
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
-            if(matrix[pos][y][z]!=0){
-               if(matrix[pos+delta][y][z]==0){
-                  matrix[pos+delta][y][z]=matrix[pos][y][z];
-                  matrix[pos][y][z]=0;
+            if(inuse.matrix[pos][y][z]!=0){
+               if(inuse.matrix[pos+delta][y][z]==0){
+                  inuse.matrix[pos+delta][y][z]=inuse.matrix[pos][y][z];
+                  inuse.matrix[pos][y][z]=0;
                   ret++;               }
-            else if(matrix[pos+delta][y][z]==matrix[pos][y][z]&&matrix[pos][y][z]>0){
-               matrix[pos+delta][y][z]++;
-               score += pow(2, matrix[pos+delta][y][z]);
-               matrix[pos+delta][y][z]*=-1;
-               matrix[pos][y][z]=0;
+            else if(inuse.matrix[pos+delta][y][z]==inuse.matrix[pos][y][z]&&inuse.matrix[pos][y][z]>0){
+               inuse.matrix[pos+delta][y][z]++;
+               inuse.score += pow(2, inuse.matrix[pos+delta][y][z]);
+               inuse.matrix[pos+delta][y][z]*=-1;
+               inuse.matrix[pos][y][z]=0;
                ret++;
                }
             }
@@ -248,16 +260,16 @@ int step( int dir, int pos){
       
       for(int x=0; x<maxsize; x++){
          for(int z=0; z<maxsize; z++){
-            if(matrix[x][pos][z]!=0){
-               if(matrix[x][pos+delta][z]==0){
-                  matrix[x][pos+delta][z]=matrix[x][pos][z];
-                  matrix[x][pos][z]=0;
+            if(inuse.matrix[x][pos][z]!=0){
+               if(inuse.matrix[x][pos+delta][z]==0){
+                  inuse.matrix[x][pos+delta][z]=inuse.matrix[x][pos][z];
+                  inuse.matrix[x][pos][z]=0;
                   ret++;               }
-            else if(matrix[x][pos+delta][z]==matrix[x][pos][z]&&matrix[x][pos][z]>0){
-               matrix[x][pos+delta][z]++;
-               score += pow(2, matrix[x][pos+delta][z]);
-               matrix[x][pos+delta][z]*=-1;
-               matrix[x][pos][z]=0;
+            else if(inuse.matrix[x][pos+delta][z]==inuse.matrix[x][pos][z]&&inuse.matrix[x][pos][z]>0){
+               inuse.matrix[x][pos+delta][z]++;
+               inuse.score += pow(2, inuse.matrix[x][pos+delta][z]);
+               inuse.matrix[x][pos+delta][z]*=-1;
+               inuse.matrix[x][pos][z]=0;
                ret++;
                }
             }
@@ -268,16 +280,16 @@ int step( int dir, int pos){
       
       for(int x=0; x<maxsize; x++){
          for(int y=0; y<maxsize; y++){
-            if(matrix[x][y][pos]!=0){
-               if(matrix[x][y][pos+delta]==0){
-                  matrix[x][y][pos+delta]=matrix[x][y][pos];
-                  matrix[x][y][pos]=0;
+            if(inuse.matrix[x][y][pos]!=0){
+               if(inuse.matrix[x][y][pos+delta]==0){
+                  inuse.matrix[x][y][pos+delta]=inuse.matrix[x][y][pos];
+                  inuse.matrix[x][y][pos]=0;
                   ret++;               }
-            else if(matrix[x][y][pos+delta]==matrix[x][y][pos]&&matrix[x][y][pos]>0){
-               matrix[x][y][pos+delta]++;
-               score += pow(2, matrix[x][y][pos+delta]);
-               matrix[x][y][pos+delta]*=-1;
-               matrix[x][y][pos]=0;
+            else if(inuse.matrix[x][y][pos+delta]==inuse.matrix[x][y][pos]&&inuse.matrix[x][y][pos]>0){
+               inuse.matrix[x][y][pos+delta]++;
+               inuse.score += pow(2, inuse.matrix[x][y][pos+delta]);
+               inuse.matrix[x][y][pos+delta]*=-1;
+               inuse.matrix[x][y][pos]=0;
                ret++;
                
                }
@@ -295,6 +307,10 @@ int step( int dir, int pos){
 
 
 int turn(int dir){
+    if(modyfied ){
+      memcpy(&bufer, &inuse, sizeof(gamespace));
+      puts("copyed");
+   } 
    int ret =0;
    int lastret=-1;
    if(dir%2)
@@ -306,7 +322,7 @@ int turn(int dir){
    }
    }
    else
-   while (ret-lastret){
+   while (ret^lastret){
    {
        lastret=ret;
        for(int i=maxsize-2; i>=0; i--)
@@ -318,27 +334,36 @@ int turn(int dir){
    for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
-            matrix[x][y][z]=abs(matrix[x][y][z]);
-            if(matrix[x][y][z]>=winrate && !winner){
+            inuse.matrix[x][y][z]=abs( inuse.matrix[x][y][z]);
+            if( inuse.matrix[x][y][z]>=winrate && !winner){
                gamemode = 2;
                winner = 1;
             }
-            else if(!matrix[x][y][z]) space++;
+            else if(!inuse.matrix[x][y][z]) space++;
          }
       }
    }
+  
+   modyfied = ret;
    if(ret){
-    //  puts("turn");
+      memcpy(&back, &bufer, sizeof(gamespace));
+      puts("copyed2");
+   
+         //  puts("turn");
    if (!space ) gamemode = 3;
    else
    newcube();
   // printf("%d\n",score);
    }
-   else 
+   else{
+    
      // printf("noturn |%d |%d\n", space, turntest());
     if(!turntest() && !space){
       gamemode = 3;
+    }
    }
+   printf("%d\n", modyfied);
+   
    return(ret);
 }
 
@@ -348,7 +373,7 @@ void newgame(){
    for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
-            matrix[x][y][z]=0;
+            inuse.matrix[x][y][z]=0;
          }
       }
    }
@@ -356,7 +381,12 @@ void newgame(){
    newcube();
    rotate_x=0;
    rotate_y=0;
-   score = 0;
+   inuse.score = 0;
+   memcpy(&back, &inuse,sizeof(gamespace));
+   memcpy(&bufer, &inuse,sizeof(gamespace));
+   //inuse.lastscore = score;
+   modyfied=1;
+
 }
 
 
@@ -366,13 +396,12 @@ void newcube(){
       x = rand() % maxsize;
       y = rand() % maxsize;
       z = rand() % maxsize; 
-   }while(matrix[x][y][z]);
-   matrix[x][y][z]=1  /*+ (rand()%4 )*/ ;
+   }while(inuse.matrix[x][y][z]);
+   inuse.matrix[x][y][z]=1  + rand()%9/8 ;
 
 }
 
 void drawmatrix(){
-  // glColor3f(0,1,1);
     glColor3f(0,0,1);
    for(int x=0 ;x<=maxsize ; x++){
       for(int y=0; y<=maxsize; y++){
@@ -409,7 +438,7 @@ void drawmatrix(){
 
 
 void drawcube( double dx, double dy, double dz, int siz ){
-   double size = 0.06/*+siz*0.005*/ ;
+   double size = 0.06;
    glBindTexture(GL_TEXTURE_2D, textures[siz-1]);
    glEnable(GL_TEXTURE_2D);
     glColor3f(1.0, 1.0, 1.0);
@@ -456,23 +485,16 @@ void drawcube( double dx, double dy, double dz, int siz ){
 void maindraw(){
 
      double h= cos(rotate_x * PI / 360.0);
- //if(fabs(h) > 0.00001) h= h_last;
  if(h<0.000001) h+= 0.000001;
  gluLookAt(cos( rotate_y* PI / 360.0)*h *radius, sin(rotate_x* PI / 360.0)*radius,-radius* h*sin(rotate_y * PI / 360.0), 0.0, 0.0, 0.0, 0.0, h, 0.0);
-  //printf ("%f     %f    %f    \n",   cos( rotate_y* PI / 360.0)*cos(rotate_x* PI / 360.0) *radius, sin(rotate_x* PI / 360.0)*radius, -radius* cos(rotate_x * PI / 360.0)*sin(rotate_y * PI / 360.0) );
-  
    glPushMatrix();
- //  glRotatef( rotate_x, 1.0, 0.0, 0.0 );
- // glRotatef( rotate_y, 0.0, 1.0, 0.0 );
- //if(cos(rotate_x * PI / 360.0)!= 0.0)   //zero vecter protection
- 
-  
-  glScalef(0.90f, 0.90f, 0.90f);
+
+ glScalef(0.90f, 0.90f, 0.90f);
    for(int x=0 ;x<maxsize ; x++){
       for(int y=0; y<maxsize; y++){
          for(int z=0; z<maxsize; z++){
-            if(matrix[x][y][z]!=0 /*&& matrix[x][y][z]<winrate*/ ){
-            drawcube(1.2/maxsize*x-0.45, 1.2/maxsize*y-0.45, 1.2/maxsize*z-0.45, matrix[x][y][z]);
+            if(inuse.matrix[x][y][z]!=0 ){
+            drawcube(1.2/maxsize*x-0.45, 1.2/maxsize*y-0.45, 1.2/maxsize*z-0.45, inuse.matrix[x][y][z]);
             }
          }
       }
@@ -509,28 +531,8 @@ void display(){
     case 0:
       g_ower_screen("textures/welcome.bmp");
     break;
-    case 4:
-      g_ower_screen("textures/help.bmp");
-    break;
+   
  }
-
-  //coming soon
-                                       //char* bitmap_font_names[7] = {"This is my firs text"};
-
-                                       // GLfloat x, y, ystep, yild, stroke_scale;
-
-                                       /* Draw the strings, according to the current mode and font. */
-                                       //glTranslatef(0.5,-1.0,0);
-                                       //glColor3f(1.0, 1.0, 0.0);
-                                       //x = 0.0;
-                                       //y = 0.0;
-                                       //ystep  = 100.0;
-                                       //yild   = 20.0;
-                                       //   glRasterPos2f(-150, y+1.25*yild);
-                                       //  print_bitmap_string(/*bitmap_font_names[0]*/"score: ");
-
-
-
 
   glPopMatrix();
   glFlush();
@@ -569,7 +571,6 @@ void g_ower_screen( char path[]){
   glTexCoord2f(1, 1);     glVertex2f( 1 , 1  );
   glTexCoord2f(0, 1);     glVertex2f( -1 , 1  );
   glTexCoord2f(0, 0);     glVertex2f( -1 , -1  );
-   //glDisable(GL_POLYGON);
   glEnd();
   glutPostRedisplay();
 
@@ -616,6 +617,12 @@ void specialKeys( int key, int x, int y ) {
       break;
       case GLUT_KEY_F10:
          newgame();
+      break;
+      case GLUT_KEY_HOME:
+      gamemode = 1;
+      memcpy( &inuse, &back, sizeof(gamespace));
+      modyfied=0; 
+      puts("pasted");
       break;
    }
   glutPostRedisplay();
@@ -665,8 +672,6 @@ void regularKeys( int key, int x, int y ) {
       break;
       case 'h':
       case 'H':
-        /* if(gamemode == 4)gamemode = 1;
-         else gamemode = 4;*/
          help = !help;
       break;
       case '0': 
@@ -679,7 +684,6 @@ void regularKeys( int key, int x, int y ) {
       break;
       case '*':
       for(int i=0; i<=100; i++){
-         //if(!turn(1)+turn(3)+turn(5))if(!turn(2))if(!turn(4))turn(6);
          if(!turn(1))if(!turn(3))if(!turn(5))if(!turn(6))if(!turn(4))turn(2);
       }
       break;
@@ -701,7 +705,6 @@ void regularKeys( int key, int x, int y ) {
 // ----------------------------------------------------------
 int main(int argc, char* argv[]){
    
-   //notification_text[] = {"you are too much gay realy, it's a problem"};
    srand(time(NULL)); 
    glutInit(&argc,argv);
   //  Request double buffered true color window with Z-buffer
@@ -709,7 +712,6 @@ int main(int argc, char* argv[]){
   glMatrixMode(GL_MODELVIEW);
   // Create window
   glutCreateWindow("2048 3D");
-  //glutReshapeWindow(700,700);
   //  Enable Z-buffer depth test
   glEnable(GL_DEPTH_TEST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
