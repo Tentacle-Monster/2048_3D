@@ -46,6 +46,9 @@ Bool modyfied = 0;
 gamespace inuse;
 gamespace bufer;
 gamespace back;
+int mise_x=0;
+int mise_y=0;
+int inmuwe=0;
 
 
 //char *               notification_text[];
@@ -77,6 +80,7 @@ char * toArray();
 void print_bitmap_string();
 void banner();
 Bool turntest();
+void mouse();
 
 
 
@@ -151,8 +155,9 @@ void notification(){
           glRasterPos3f(0.0,0.185,radius*0.5);
           print_bitmap_string("h- hide help  ");
           glRasterPos3f(0.0,0.216,radius*0.5);
-          print_bitmap_string("m - hide inuse.matrix  ");
-          
+          print_bitmap_string("m - hide matrix  ");
+          glRasterPos3f(0.0,0.247,radius*0.5);
+          print_bitmap_string("home - cansel turn ");
    glMatrixMode(GL_PROJECTION);
    glPopMatrix();
    glMatrixMode(GL_MODELVIEW);
@@ -309,7 +314,6 @@ int step( int dir, int pos){
 int turn(int dir){
     if(modyfied ){
       memcpy(&bufer, &inuse, sizeof(gamespace));
-      puts("copyed");
    } 
    int ret =0;
    int lastret=-1;
@@ -347,9 +351,7 @@ int turn(int dir){
    modyfied = ret;
    if(ret){
       memcpy(&back, &bufer, sizeof(gamespace));
-      puts("copyed2");
-   
-         //  puts("turn");
+
    if (!space ) gamemode = 3;
    else
    newcube();
@@ -362,7 +364,6 @@ int turn(int dir){
       gamemode = 3;
     }
    }
-   printf("%d\n", modyfied);
    
    return(ret);
 }
@@ -622,9 +623,10 @@ void specialKeys( int key, int x, int y ) {
       gamemode = 1;
       memcpy( &inuse, &back, sizeof(gamespace));
       modyfied=0; 
-      puts("pasted");
       break;
    }
+   rotate_x= roundf(rotate_x/2.5)*2.5;
+   rotate_y= roundf(rotate_y/2.5)*2.5;
   glutPostRedisplay();
   
 }
@@ -694,11 +696,38 @@ void regularKeys( int key, int x, int y ) {
       usematrix ^= 1;
       break;
    }
+
+   rotate_x= roundf(rotate_x/2.5)*2.5;
+   rotate_y= roundf(rotate_y/2.5)*2.5;
   glutPostRedisplay();
   
 }
 
+void mouse(int button,int state,int x,int y)
+{
+   //MouseState mouse = InputDevices.get_mouse_state();
+   int width, height;
+  // glfwGetWindowSize(&width, &height);
+   //printf("%f  | %f |%d\n",(double)(mouse.dx)/700*90,(double)(mouse.dy)/700*90,state);
+	if(state = GLUT_UP ){
+      if(inmuwe){
+      rotate_y += (double)(mise_x-x)/25.0;
+      rotate_x -= (double)(mise_y-y)/25.0;
+      inmuwe = 0;
+      }
+      else {
+      mise_x=x;
+      mise_y=y;
+      inmuwe=1;
+      }
 
+   }
+   
+   glutPostRedisplay();
+   //printf("%d \n", state);
+
+
+}
 
 // ----------------------------------------------------------
 // main() function
@@ -735,6 +764,7 @@ int main(int argc, char* argv[]){
   glutSpecialFunc(specialKeys);
   glutKeyboardFunc(regularKeys);
   glutReshapeFunc(ChangeSize);
+  glutMouseFunc(mouse);
   //  Pass control to GLUT for events
   glutMainLoop();
  
