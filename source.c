@@ -158,6 +158,8 @@ void notification(){
           print_bitmap_string("m - hide matrix  ");
           glRasterPos3f(0.0,0.247,radius*0.5);
           print_bitmap_string("home - cansel turn ");
+          glRasterPos3f(0.0,0.278,radius*0.5);
+          print_bitmap_string("you can also use mouse");
    glMatrixMode(GL_PROJECTION);
    glPopMatrix();
    glMatrixMode(GL_MODELVIEW);
@@ -633,7 +635,7 @@ void specialKeys( int key, int x, int y ) {
 void regularKeys( int key, int x, int y ) {
    if(gamemode ==0 ) newgame();
    else
-   switch(key){
+   switch(key  ){
       case 'a':
       case 'A':
          rotate_y += 2.5;
@@ -695,6 +697,10 @@ void regularKeys( int key, int x, int y ) {
       case 'm':
       usematrix ^= 1;
       break;
+      case 'c':
+      rotate_x= roundf(rotate_x/180)*180;
+      rotate_y= roundf(rotate_y/180)*180;
+      break;
    }
 
    rotate_x= roundf(rotate_x/2.5)*2.5;
@@ -705,14 +711,13 @@ void regularKeys( int key, int x, int y ) {
 
 void mouse(int button,int state,int x,int y)
 {
-   //MouseState mouse = InputDevices.get_mouse_state();
-   int width, height;
-  // glfwGetWindowSize(&width, &height);
-   //printf("%f  | %f |%d\n",(double)(mouse.dx)/700*90,(double)(mouse.dy)/700*90,state);
+   int width, height; 
+   if(gamemode != 1){newgame(); return;} 
+   if (button == GLUT_LEFT_BUTTON){
 	if(state = GLUT_UP ){
       if(inmuwe){
-      rotate_y += (double)(mise_x-x)/25.0;
-      rotate_x -= (double)(mise_y-y)/25.0;
+      rotate_y += (double)(mise_x-x)/15.0;
+      rotate_x -= (double)(mise_y-y)/15.0;
       inmuwe = 0;
       }
       else {
@@ -720,9 +725,74 @@ void mouse(int button,int state,int x,int y)
       mise_y=y;
       inmuwe=1;
       }
+         rotate_x= roundf(rotate_x/2.5)*2.5;
+         rotate_y= roundf(rotate_y/2.5)*2.5;
+   }
+   }
+   else if (button == GLUT_MIDDLE_BUTTON){
+      rotate_x= roundf(rotate_x/180)*180;
+      rotate_y= roundf(rotate_y/180)*180;
+   }
+   else if (button == GLUT_RIGHT_BUTTON){
+      //rotate_x= roundf(rotate_x/180);
+      //rotate_y= roundf(rotate_y/180)*180;
+      int xx = roundf(rotate_x/180)+4;
+      int yy = roundf(rotate_y/180)+4;
+      xx %=4;
+      yy %=4;
+      if(xx<0)xx+=4;
+      if(yy<0)yy+=4;
+      printf("%d  |%d \n", xx,yy);
+      switch(xx){
+         case 0:
+          switch(yy){
+             case 0:
+             turn(1);
+             break;
+             case 2:
+             turn(0);
+             break;
+             case 1:
+             turn(4);
+             break;
+             case 3:
+             turn(5);
+             break;
+
+          }
+         break;
+         case 2:
+             switch(yy){
+             case 0:
+             turn(0);
+             break;
+             case 2:
+             turn(1);
+             break;
+             case 1:
+             turn(5);
+             break;
+             case 3:
+             turn(4);
+             break;}
+
+         break;
+
+
+         case 3:
+             turn(2);
+             
+         break;
+         case 1:
+             turn(3);
+             
+         break;
+
+      }
+
+
 
    }
-   
    glutPostRedisplay();
    //printf("%d \n", state);
 
