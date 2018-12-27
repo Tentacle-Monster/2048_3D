@@ -22,22 +22,15 @@
 typedef struct {
 int matrix[maxsize][maxsize][maxsize] ;
 int score;
-
 }gamespace;
 const int truesize = maxsize*maxsize*maxsize;
 double rotate_y=0; 
 double rotate_x=0;
-//int inuse.matrix[maxsize][maxsize][maxsize] ;
-//int lastturn[maxsize][maxsize][maxsize];
-//int bufer[maxsize][maxsize][maxsize];
 GLuint *                  textures[limit];
 int gamemode =0;
 const double PI  =3.141592653589793238463;
 double radius = 2.0;
 double h_last = -0.1;
-//int score = 0;
-//int lastscore= 0;
-//int bufscore= 0;
 GLfloat x, y, ystep, yild, stroke_scale;
 int winner = 0;
 Bool usematrix = 1;
@@ -50,9 +43,6 @@ int mise_x=0;
 int mise_y=0;
 int inmuwe=0;
 
-
-//char *               notification_text[];
-//int last_gamemode =0;
 
 // ----------------------------------------------------------
 // Function Prototypes
@@ -125,7 +115,7 @@ void banner(){
 
 
           glColor3f(1.0, 1.0, 0.0);
-          glRasterPos3f(0.0,0.03,radius*0.5);
+          glRasterPos3f(0.0,0.03,1);
           print_bitmap_string(toArray(inuse.score));
    glMatrixMode(GL_PROJECTION);
    glPopMatrix();
@@ -144,21 +134,21 @@ void notification(){
 
 
           glColor3f(0.0, 1.0, 1.0);
-          glRasterPos3f(0.0,0.061,radius*0.5);
+          glRasterPos3f(0.0,0.061,1);
           print_bitmap_string("wasd/arrows - rotate cube");
-          glRasterPos3f(0.0,0.092,radius*0.5);
+          glRasterPos3f(0.0,0.092,1);
           print_bitmap_string("1-6/F1-F6 - turn  ");
-          glRasterPos3f(0.0,0.123,radius*0.5);
+          glRasterPos3f(0.0,0.123,1);
           print_bitmap_string("Esc- return to menu  ");
-          glRasterPos3f(0.0,0.154,radius*0.5);
+          glRasterPos3f(0.0,0.154,1);
           print_bitmap_string("F10 - start new game  ");
-          glRasterPos3f(0.0,0.185,radius*0.5);
+          glRasterPos3f(0.0,0.185,1);
           print_bitmap_string("h- hide help  ");
-          glRasterPos3f(0.0,0.216,radius*0.5);
+          glRasterPos3f(0.0,0.216,1);
           print_bitmap_string("m - hide matrix  ");
-          glRasterPos3f(0.0,0.247,radius*0.5);
+          glRasterPos3f(0.0,0.247,1);
           print_bitmap_string("home - cansel turn ");
-          glRasterPos3f(0.0,0.278,radius*0.5);
+          glRasterPos3f(0.0,0.278,1);
           print_bitmap_string("you can also use mouse");
    glMatrixMode(GL_PROJECTION);
    glPopMatrix();
@@ -254,7 +244,7 @@ int step( int dir, int pos){
                   ret++;               }
             else if(inuse.matrix[pos+delta][y][z]==inuse.matrix[pos][y][z]&&inuse.matrix[pos][y][z]>0){
                inuse.matrix[pos+delta][y][z]++;
-               inuse.score += pow(2, inuse.matrix[pos+delta][y][z]);
+               inuse.score += 1<<inuse.matrix[pos+delta][y][z];
                inuse.matrix[pos+delta][y][z]*=-1;
                inuse.matrix[pos][y][z]=0;
                ret++;
@@ -357,15 +347,13 @@ int turn(int dir){
    if (!space ) gamemode = 3;
    else
    newcube();
-  // printf("%d\n",score);
    }
    else{
-    
-     // printf("noturn |%d |%d\n", space, turntest());
     if(!turntest() && !space){
       gamemode = 3;
     }
    }
+   
    
    return(ret);
 }
@@ -387,8 +375,10 @@ void newgame(){
    inuse.score = 0;
    memcpy(&back, &inuse,sizeof(gamespace));
    memcpy(&bufer, &inuse,sizeof(gamespace));
-   //inuse.lastscore = score;
+   mise_x = 0;
+   mise_y = 0;
    modyfied=1;
+   radius = 2;
 
 }
 
@@ -627,8 +617,7 @@ void specialKeys( int key, int x, int y ) {
       modyfied=0; 
       break;
    }
-   rotate_x= roundf(rotate_x/2.5)*2.5;
-   rotate_y= roundf(rotate_y/2.5)*2.5;
+
   glutPostRedisplay();
   
 }
@@ -703,46 +692,57 @@ void regularKeys( int key, int x, int y ) {
       break;
    }
 
-   rotate_x= roundf(rotate_x/2.5)*2.5;
-   rotate_y= roundf(rotate_y/2.5)*2.5;
   glutPostRedisplay();
   
 }
 
 void mouse(int button,int state,int x,int y)
 {
+
    int width, height; 
-   if(gamemode != 1){newgame(); return;} 
-   if (button == GLUT_LEFT_BUTTON){
-	if(state = GLUT_UP ){
+   if(gamemode != 1)newgame() ;
+   else switch(button){
+
+
+   case GLUT_LEFT_BUTTON:
+	if(state == GLUT_UP ){
       if(inmuwe){
-      rotate_y += (double)(mise_x-x)/15.0;
-      rotate_x -= (double)(mise_y-y)/15.0;
+      rotate_y += (double)(mise_x-x)/20.0;
+      rotate_x -= (double)(mise_y-y)/20.0;
       inmuwe = 0;
+      rotate_x= roundf(rotate_x/2.5)*2.5;
+      rotate_y= roundf(rotate_y/2.5)*2.5;
       }
-      else {
+      }  else {
       mise_x=x;
       mise_y=y;
-      inmuwe=1;
-      }
-         rotate_x= roundf(rotate_x/2.5)*2.5;
-         rotate_y= roundf(rotate_y/2.5)*2.5;
-   }
-   }
-   else if (button == GLUT_MIDDLE_BUTTON){
+      inmuwe=1; }
+         
+   break;
+
+
+
+
+
+   case  GLUT_MIDDLE_BUTTON:
       rotate_x= roundf(rotate_x/180)*180;
       rotate_y= roundf(rotate_y/180)*180;
-   }
-   else if (button == GLUT_RIGHT_BUTTON){
-      //rotate_x= roundf(rotate_x/180);
-      //rotate_y= roundf(rotate_y/180)*180;
+   break;
+
+
+
+
+
+   case GLUT_RIGHT_BUTTON:
+    if (state == GLUT_UP){
+
       int xx = roundf(rotate_x/180)+4;
       int yy = roundf(rotate_y/180)+4;
       xx %=4;
       yy %=4;
       if(xx<0)xx+=4;
       if(yy<0)yy+=4;
-      printf("%d  |%d \n", xx,yy);
+
       switch(xx){
          case 0:
           switch(yy){
@@ -774,8 +774,9 @@ void mouse(int button,int state,int x,int y)
              break;
              case 3:
              turn(4);
-             break;}
-
+             break;
+             }
+        
          break;
 
 
@@ -783,21 +784,26 @@ void mouse(int button,int state,int x,int y)
              turn(2);
              
          break;
+
          case 1:
              turn(3);
              
          break;
-
-      }
-
-
-
-   }
-   glutPostRedisplay();
-   //printf("%d \n", state);
+          }}
+    break;
 
 
-}
+    case  3:
+     if(radius > 1.94)radius -= 0.01;
+    break;
+
+
+    case 4:
+     if(radius < 4) radius += 0.01;
+     break;
+  
+ }
+ glutPostRedisplay();}
 
 // ----------------------------------------------------------
 // main() function
