@@ -1,4 +1,4 @@
 make: 
 	gcc -o source source.c -lglut -lGLU -lGL -lm 
-	gcc source.c -lglut -lGLU -lGL -lm -o source.exe 
+	gcc -o source.exe -Wall source.c -lopengl32 -lglu32 -lglut32
 	
