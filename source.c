@@ -9,7 +9,7 @@
 #include <time.h>
 #include <GL/glut.h>
 #include <GL/gl.h>
-#include <GL/glx.h>
+//#include <GL/glx.h>
 #include <GL/glu.h>
 #define maxsize 4
 #define winrate 11
@@ -33,9 +33,9 @@ double radius = 2.0;
 double h_last = -0.1;
 GLfloat x, y, ystep, yild, stroke_scale;
 int winner = 0;
-Bool usematrix = 1;
-Bool help = 1;
-Bool modyfied = 0;
+int usematrix = 1;
+int help = 1;
+int modyfied = 0;
 gamespace inuse;
 gamespace bufer;
 gamespace back;
@@ -69,7 +69,7 @@ void banner();
 char * toArray();
 void print_bitmap_string();
 void banner();
-Bool turntest();
+int turntest();
 void mouse();
 
 
@@ -209,7 +209,7 @@ glBindTexture(GL_TEXTURE_2D, 0);
 return texture;
 }
 
-Bool turntest(){
+int turntest(){
    int lim = maxsize-1;
    int currient;
    int rt = 0;
@@ -707,8 +707,8 @@ void mouse(int button,int state,int x,int y)
    case GLUT_LEFT_BUTTON:
 	if(state == GLUT_UP ){
       if(inmuwe){
-      rotate_y += (double)(mise_x-x)/20.0;
-      rotate_x -= (double)(mise_y-y)/20.0;
+      rotate_y += (double)(mise_x-x)/glutGet(GLUT_WINDOW_WIDTH)*90;
+      rotate_x -= (double)(mise_y-y)/glutGet(GLUT_WINDOW_HEIGHT)*90;
       inmuwe = 0;
       rotate_x= roundf(rotate_x/2.5)*2.5;
       rotate_y= roundf(rotate_y/2.5)*2.5;
