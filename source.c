@@ -42,6 +42,9 @@ gamespace back;
 int mise_x=0;
 int mise_y=0;
 int inmuwe=0;
+int move = 0;
+//POINT mousePos;
+//int msx,msy;
 
 
 // ----------------------------------------------------------
@@ -565,7 +568,7 @@ void g_ower_screen( char path[]){
   glTexCoord2f(0, 1);     glVertex2f( -1 , 1  );
   glTexCoord2f(0, 0);     glVertex2f( -1 , -1  );
   glEnd();
-  glutPostRedisplay();
+ // glutPostRedisplay();
 
 
 }
@@ -618,7 +621,7 @@ void specialKeys( int key, int x, int y ) {
       break;
    }
 
-  glutPostRedisplay();
+  //glutPostRedisplay();
   
 }
 void regularKeys( int key, int x, int y ) {
@@ -692,9 +695,46 @@ void regularKeys( int key, int x, int y ) {
       break;
    }
 
-  glutPostRedisplay();
+//  glutPostRedisplay();
   
 }
+
+
+
+void fpsevent(){
+   /*
+   if(inmuwe){
+      rotate_y += (double)(mise_x-x)/glutGet(GLUT_WINDOW_WIDTH)*90;
+      rotate_x -= (double)(mise_y-y)/glutGet(GLUT_WINDOW_HEIGHT)*90;
+      mise_x=x;
+      mise_y=y;
+     
+   }*/
+   //puts("frame");
+    glutPostRedisplay();
+     glutTimerFunc(20,fpsevent,0);
+}
+
+
+
+void My_mouse_routine(int x, int y)
+{
+   if(inmuwe){
+      rotate_y += (double)(mise_x-x)/glutGet(GLUT_WINDOW_WIDTH)*90;
+      rotate_x -= (double)(mise_y-y)/glutGet(GLUT_WINDOW_HEIGHT)*90;
+      mise_x=x;
+      mise_y=y;
+     //glutPostRedisplay();
+   }
+
+
+   //puts("--||--");
+//mouse_x = x; place current mouse pos in mouse_x
+//mouse_y = y;
+
+}
+
+
 
 void mouse(int button,int state,int x,int y)
 {
@@ -707,21 +747,20 @@ void mouse(int button,int state,int x,int y)
    case GLUT_LEFT_BUTTON:
 	if(state == GLUT_UP ){
       if(inmuwe){
-      rotate_y += (double)(mise_x-x)/glutGet(GLUT_WINDOW_WIDTH)*90;
+    /*  rotate_y += (double)(mise_x-x)/glutGet(GLUT_WINDOW_WIDTH)*90;
       rotate_x -= (double)(mise_y-y)/glutGet(GLUT_WINDOW_HEIGHT)*90;
-      inmuwe = 0;
+      */inmuwe = 0;
       rotate_x= roundf(rotate_x/2.5)*2.5;
       rotate_y= roundf(rotate_y/2.5)*2.5;
+      //move = 1;
       }
       }  else {
       mise_x=x;
       mise_y=y;
-      inmuwe=1; }
+      inmuwe=1;
+       }
          
    break;
-
-
-
 
 
    case  GLUT_MIDDLE_BUTTON:
@@ -803,7 +842,11 @@ void mouse(int button,int state,int x,int y)
      break;
   
  }
- glutPostRedisplay();}
+ //glutPostRedisplay();
+ }
+
+
+
 
 // ----------------------------------------------------------
 // main() function
@@ -841,10 +884,15 @@ int main(int argc, char* argv[]){
   glutKeyboardFunc(regularKeys);
   glutReshapeFunc(ChangeSize);
   glutMouseFunc(mouse);
+  glutMotionFunc( My_mouse_routine );
+  glutTimerFunc(20,fpsevent,0);
   //  Pass control to GLUT for events
   glutMainLoop();
  
   //  Return to OS
   return 0;
+
+
+  //i686-w64-mingw32-gcc -o source.exe -Wall source.c -I/usr/x86_64-w64-mingw32/include -L/usr/x86_64-w64-mingw32/lib -lopengl32 -lglu32  --static	 
  
 }
