@@ -387,13 +387,19 @@ void newgame(){
 
 
 void newcube(){
-   int x,y,z;
+   unsigned int x, y, z;
+   unsigned int attempts = 100;
    do{
       x = rand() % maxsize;
       y = rand() % maxsize;
       z = rand() % maxsize; 
-   }while(inuse.matrix[x][y][z]);
-   inuse.matrix[x][y][z]=1  + rand()%9/8 ;
+      attempts --;
+   }while(inuse.matrix[x][y][z] && attempts);
+   if (inuse.matrix[x][y][z]){
+     gamemode = 3;
+     return;
+   }
+      inuse.matrix[x][y][z] = 1 + rand() % 9 / 8;
 
 }
 
@@ -720,8 +726,11 @@ void fpsevent(){
 void My_mouse_routine(int x, int y)
 {
    if(inmuwe){
-      rotate_y += (double)(mise_x-x)/glutGet(GLUT_WINDOW_WIDTH)*90;
-      rotate_x -= (double)(mise_y-y)/glutGet(GLUT_WINDOW_HEIGHT)*90;
+      rotate_x -= (double)(mise_y-y)/glutGet(GLUT_WINDOW_WIDTH)*180;
+     /* if((int)roundf((rotate_x+90)/180) & 1)rotate_y -= (double)(mise_x-x)/glutGet(GLUT_WINDOW_HEIGHT)*180;
+      else rotate_y += (double)(mise_x-x)/glutGet(GLUT_WINDOW_HEIGHT)*180;
+      */
+      rotate_y += (double)(mise_x-x)/glutGet(GLUT_WINDOW_HEIGHT)*180;
       mise_x=x;
       mise_y=y;
      //glutPostRedisplay();
